@@ -26,7 +26,6 @@ DerivedFrom:  -
 # WatchGuard Firewall Mapping
 
 ## Overview
-Kind: time-boxed project (50_Projects). If the viewer stays in use, it moves to `10_Tools\Firewall-Map`.
 
 The goal is to show how the policies on a WatchGuard Firebox (built against Fireware 12.12 exports) relate to each other and to the network. `Firewall-Map.html` is a single offline page. It reads a Policy Manager XML export in the browser and resolves every alias, address group, interface, user group, static NAT and service down to real addresses and ports. It then shows the result in five tabs, at three levels of detail.
 
