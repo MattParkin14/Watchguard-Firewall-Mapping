@@ -1,0 +1,106 @@
+Time,Action,Source IP,Destination IP,Destination Port,Protocol,Policy,Count
+2026-10-08 09:00:00,Deny,10.141.0.40,10.130.0.11,445,tcp,Block Guest to Internal,8
+2026-10-08 10:01:00,Deny,10.141.0.20,10.130.0.11,445,tcp,Block Guest to Internal,18
+2026-10-08 11:02:00,Deny,10.141.0.27,10.130.0.11,445,tcp,Block Guest to Internal,15
+2026-10-08 12:03:00,Deny,10.141.0.24,10.130.0.11,445,tcp,Block Guest to Internal,7
+2026-10-08 13:04:00,Deny,10.141.0.37,10.130.0.11,445,tcp,Block Guest to Internal,6
+2026-10-08 14:05:00,Deny,10.141.0.38,10.130.0.11,445,tcp,Block Guest to Internal,28
+2026-10-08 15:06:00,Deny,10.141.0.21,10.130.0.11,445,tcp,Block Guest to Internal,2
+2026-10-08 16:07:00,Deny,10.141.0.22,10.130.0.11,445,tcp,Block Guest to Internal,14
+2026-10-08 09:08:00,Deny,10.141.0.27,10.130.0.11,445,tcp,Block Guest to Internal,33
+2026-10-08 10:09:00,Deny,10.141.0.39,10.130.0.11,445,tcp,Block Guest to Internal,2
+2026-10-08 11:10:00,Deny,10.141.0.37,10.130.0.11,445,tcp,Block Guest to Internal,13
+2026-10-08 12:11:00,Deny,10.141.0.40,10.130.0.11,445,tcp,Block Guest to Internal,35
+2026-10-08 13:12:00,Deny,10.141.0.33,10.130.0.11,445,tcp,Block Guest to Internal,15
+2026-10-08 14:13:00,Deny,10.141.0.34,10.130.0.11,445,tcp,Block Guest to Internal,38
+2026-10-08 15:14:00,Deny,10.141.0.28,10.130.0.11,445,tcp,Block Guest to Internal,1
+2026-10-08 16:15:00,Deny,10.141.0.25,10.130.0.11,445,tcp,Block Guest to Internal,28
+2026-10-08 09:16:00,Deny,10.141.0.30,10.130.0.11,445,tcp,Block Guest to Internal,18
+2026-10-08 10:17:00,Deny,10.141.0.24,10.130.0.11,445,tcp,Block Guest to Internal,14
+2026-10-08 11:18:00,Deny,10.141.0.30,10.130.0.11,445,tcp,Block Guest to Internal,7
+2026-10-08 12:19:00,Deny,10.141.0.22,10.130.0.11,445,tcp,Block Guest to Internal,25
+2026-10-08 13:20:00,Deny,10.141.0.23,10.130.0.11,445,tcp,Block Guest to Internal,23
+2026-10-08 14:21:00,Deny,10.141.0.31,10.130.0.11,445,tcp,Block Guest to Internal,39
+2026-10-08 15:22:00,Deny,10.141.0.28,10.130.0.11,445,tcp,Block Guest to Internal,3
+2026-10-08 16:23:00,Deny,10.141.0.34,10.130.0.11,445,tcp,Block Guest to Internal,35
+2026-10-08 09:24:00,Deny,10.141.0.23,10.130.0.11,445,tcp,Block Guest to Internal,25
+2026-10-08 10:25:00,Deny,10.141.0.22,10.130.0.11,445,tcp,Block Guest to Internal,36
+2026-10-08 11:26:00,Deny,10.141.0.29,10.130.0.11,445,tcp,Block Guest to Internal,40
+2026-10-08 12:27:00,Deny,10.141.0.31,10.130.0.11,445,tcp,Block Guest to Internal,37
+2026-10-08 13:28:00,Deny,10.141.0.26,10.130.0.11,445,tcp,Block Guest to Internal,5
+2026-10-08 14:29:00,Deny,10.141.0.21,10.130.0.11,445,tcp,Block Guest to Internal,15
+2026-10-08 15:30:00,Deny,10.141.0.29,10.130.0.11,445,tcp,Block Guest to Internal,6
+2026-10-08 16:31:00,Deny,10.141.0.27,10.130.0.11,445,tcp,Block Guest to Internal,7
+2026-10-08 09:32:00,Deny,10.141.0.32,10.130.0.11,445,tcp,Block Guest to Internal,18
+2026-10-08 10:33:00,Deny,10.141.0.34,10.130.0.11,445,tcp,Block Guest to Internal,24
+2026-10-08 11:34:00,Deny,10.141.0.25,10.130.0.11,445,tcp,Block Guest to Internal,24
+2026-10-08 12:35:00,Deny,10.141.0.31,10.130.0.11,445,tcp,Block Guest to Internal,14
+2026-10-08 13:36:00,Deny,10.141.0.28,10.130.0.11,445,tcp,Block Guest to Internal,5
+2026-10-08 14:37:00,Deny,10.141.0.39,10.130.0.11,445,tcp,Block Guest to Internal,11
+2026-10-08 15:38:00,Deny,10.141.0.37,10.130.0.11,445,tcp,Block Guest to Internal,16
+2026-10-08 16:39:00,Deny,10.141.0.25,10.130.0.11,445,tcp,Block Guest to Internal,30
+2026-10-08 09:00:00,Deny,10.160.0.32,10.131.0.10,1433,tcp,Unhandled Internal Packet,18
+2026-10-08 10:01:00,Deny,10.160.0.40,10.131.0.10,1433,tcp,Unhandled Internal Packet,36
+2026-10-08 11:02:00,Deny,10.160.0.27,10.131.0.10,1433,tcp,Unhandled Internal Packet,21
+2026-10-08 12:03:00,Deny,10.160.0.21,10.131.0.10,1433,tcp,Unhandled Internal Packet,15
+2026-10-08 13:04:00,Deny,10.160.0.21,10.131.0.10,1433,tcp,Unhandled Internal Packet,21
+2026-10-08 14:05:00,Deny,10.160.0.32,10.131.0.10,1433,tcp,Unhandled Internal Packet,18
+2026-10-08 15:06:00,Deny,10.160.0.22,10.131.0.10,1433,tcp,Unhandled Internal Packet,14
+2026-10-08 16:07:00,Deny,10.160.0.38,10.131.0.10,1433,tcp,Unhandled Internal Packet,21
+2026-10-08 09:08:00,Deny,10.160.0.26,10.131.0.10,1433,tcp,Unhandled Internal Packet,32
+2026-10-08 10:09:00,Deny,10.160.0.32,10.131.0.10,1433,tcp,Unhandled Internal Packet,30
+2026-10-08 11:10:00,Deny,10.160.0.24,10.131.0.10,1433,tcp,Unhandled Internal Packet,17
+2026-10-08 12:11:00,Deny,10.160.0.24,10.131.0.10,1433,tcp,Unhandled Internal Packet,16
+2026-10-08 13:12:00,Deny,10.160.0.37,10.131.0.10,1433,tcp,Unhandled Internal Packet,35
+2026-10-08 14:13:00,Deny,10.160.0.28,10.131.0.10,1433,tcp,Unhandled Internal Packet,38
+2026-10-08 15:14:00,Deny,10.160.0.33,10.131.0.10,1433,tcp,Unhandled Internal Packet,38
+2026-10-08 16:15:00,Deny,10.160.0.32,10.131.0.10,1433,tcp,Unhandled Internal Packet,24
+2026-10-08 09:16:00,Deny,10.160.0.27,10.131.0.10,1433,tcp,Unhandled Internal Packet,9
+2026-10-08 10:17:00,Deny,10.160.0.36,10.131.0.10,1433,tcp,Unhandled Internal Packet,32
+2026-10-08 11:18:00,Deny,10.160.0.22,10.131.0.10,1433,tcp,Unhandled Internal Packet,4
+2026-10-08 12:19:00,Deny,10.160.0.23,10.131.0.10,1433,tcp,Unhandled Internal Packet,10
+2026-10-08 13:20:00,Deny,10.160.0.40,10.131.0.10,1433,tcp,Unhandled Internal Packet,11
+2026-10-08 14:21:00,Deny,10.160.0.33,10.131.0.10,1433,tcp,Unhandled Internal Packet,39
+2026-10-08 15:22:00,Deny,10.160.0.22,10.131.0.10,1433,tcp,Unhandled Internal Packet,25
+2026-10-08 16:23:00,Deny,10.160.0.32,10.131.0.10,1433,tcp,Unhandled Internal Packet,39
+2026-10-08 09:24:00,Deny,10.160.0.34,10.131.0.10,1433,tcp,Unhandled Internal Packet,34
+2026-10-08 09:00:00,Deny,203.0.113.28,203.0.113.3,3389,tcp,Unhandled External Packet,36
+2026-10-08 10:01:00,Deny,203.0.113.20,203.0.113.3,3389,tcp,Unhandled External Packet,8
+2026-10-08 11:02:00,Deny,203.0.113.37,203.0.113.3,3389,tcp,Unhandled External Packet,18
+2026-10-08 12:03:00,Deny,203.0.113.40,203.0.113.3,3389,tcp,Unhandled External Packet,22
+2026-10-08 13:04:00,Deny,203.0.113.23,203.0.113.3,3389,tcp,Unhandled External Packet,19
+2026-10-08 14:05:00,Deny,203.0.113.33,203.0.113.3,3389,tcp,Unhandled External Packet,11
+2026-10-08 15:06:00,Deny,203.0.113.34,203.0.113.3,3389,tcp,Unhandled External Packet,1
+2026-10-08 16:07:00,Deny,203.0.113.28,203.0.113.3,3389,tcp,Unhandled External Packet,33
+2026-10-08 09:08:00,Deny,203.0.113.25,203.0.113.3,3389,tcp,Unhandled External Packet,33
+2026-10-08 10:09:00,Deny,203.0.113.23,203.0.113.3,3389,tcp,Unhandled External Packet,20
+2026-10-08 11:10:00,Deny,203.0.113.40,203.0.113.3,3389,tcp,Unhandled External Packet,33
+2026-10-08 12:11:00,Deny,203.0.113.39,203.0.113.3,3389,tcp,Unhandled External Packet,13
+2026-10-08 13:12:00,Deny,203.0.113.24,203.0.113.3,3389,tcp,Unhandled External Packet,24
+2026-10-08 14:13:00,Deny,203.0.113.25,203.0.113.3,3389,tcp,Unhandled External Packet,35
+2026-10-08 15:14:00,Deny,203.0.113.36,203.0.113.3,3389,tcp,Unhandled External Packet,1
+2026-10-08 09:00:00,Deny,10.120.1.39,10.170.0.10,554,udp,Unhandled Internal Packet,21
+2026-10-08 10:01:00,Deny,10.120.1.35,10.170.0.10,554,udp,Unhandled Internal Packet,2
+2026-10-08 11:02:00,Deny,10.120.1.23,10.170.0.10,554,udp,Unhandled Internal Packet,24
+2026-10-08 12:03:00,Deny,10.120.1.29,10.170.0.10,554,udp,Unhandled Internal Packet,16
+2026-10-08 13:04:00,Deny,10.120.1.21,10.170.0.10,554,udp,Unhandled Internal Packet,16
+2026-10-08 14:05:00,Deny,10.120.1.38,10.170.0.10,554,udp,Unhandled Internal Packet,6
+2026-10-08 15:06:00,Deny,10.120.1.22,10.170.0.10,554,udp,Unhandled Internal Packet,32
+2026-10-08 16:07:00,Deny,10.120.1.22,10.170.0.10,554,udp,Unhandled Internal Packet,35
+2026-10-08 09:08:00,Deny,10.120.1.24,10.170.0.10,554,udp,Unhandled Internal Packet,9
+2026-10-08 10:09:00,Deny,10.120.1.35,10.170.0.10,554,udp,Unhandled Internal Packet,36
+2026-10-08 11:10:00,Deny,10.120.1.25,10.170.0.10,554,udp,Unhandled Internal Packet,17
+2026-10-08 12:11:00,Deny,10.120.1.36,10.170.0.10,554,udp,Unhandled Internal Packet,39
+2026-10-08 13:12:00,Deny,10.120.1.33,10.170.0.10,554,udp,Unhandled Internal Packet,14
+2026-10-08 14:13:00,Deny,10.120.1.37,10.170.0.10,554,udp,Unhandled Internal Packet,13
+2026-10-08 15:14:00,Deny,10.120.1.29,10.170.0.10,554,udp,Unhandled Internal Packet,26
+2026-10-08 16:15:00,Deny,10.120.1.40,10.170.0.10,554,udp,Unhandled Internal Packet,24
+2026-10-08 09:16:00,Deny,10.120.1.34,10.170.0.10,554,udp,Unhandled Internal Packet,34
+2026-10-08 10:17:00,Deny,10.120.1.34,10.170.0.10,554,udp,Unhandled Internal Packet,8
+2026-10-08 11:18:00,Deny,10.120.1.27,10.170.0.10,554,udp,Unhandled Internal Packet,15
+2026-10-08 12:19:00,Deny,10.120.1.22,10.170.0.10,554,udp,Unhandled Internal Packet,22
+2026-10-08 09:00:00,Allow,10.120.1.20,10.130.0.30,443,tcp,Staff to Web Servers,38
+2026-10-08 10:01:00,Allow,10.120.1.37,10.130.0.30,443,tcp,Staff to Web Servers,15
+2026-10-08 11:02:00,Allow,10.120.1.38,10.130.0.30,443,tcp,Staff to Web Servers,15
+2026-10-08 12:03:00,Allow,10.120.1.20,10.130.0.30,443,tcp,Staff to Web Servers,5
+2026-10-08 13:04:00,Allow,10.120.1.40,10.130.0.30,443,tcp,Staff to Web Servers,4

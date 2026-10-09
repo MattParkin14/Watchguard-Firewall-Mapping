@@ -1,0 +1,42 @@
+name,bytes,hits,status
+Backup to Cloud-00,2400000000000,1800,Last usage occurred before 2026-10-08 20:00:00 UTC
+Backup Server to DB-00,1100000000000,900,Last usage occurred before 2026-10-08 20:00:00 UTC
+Staff Internet - HTTPS-proxy-00,620000000000,9800000,Last usage occurred before 2026-10-08 20:00:00 UTC
+OS Updates-00,410000000000,1300000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Guest WiFi Internet-00,180000000000,350000,Last usage occurred before 2026-10-08 20:00:00 UTC
+CCTV Viewing-00,150000000000,2400,Last usage occurred before 2026-10-08 20:00:00 UTC
+Staff Internet - HTTP-proxy-00,95000000000,2100000,Last usage occurred before 2026-10-08 20:00:00 UTC
+VPN Users to Internal-00,70000000000,220000,Last usage occurred before 2026-10-08 20:00:00 UTC
+App to DB-00,60000000000,780000,Last usage occurred before 2026-10-08 20:00:00 UTC
+AD Services-00,40000000000,14500000,Last usage occurred before 2026-10-08 20:00:00 UTC
+SSL VPN-00,30000000000,15000,Last usage occurred before 2026-10-08 20:00:00 UTC
+**** Temp Rule 7 ****-00,30000000000,410000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Staff to Web Servers-00,22000000000,450000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Print Services-00,12000000000,60000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Inbound Web Portal-00,9000000000,120000,Last usage occurred before 2026-10-08 20:00:00 UTC
+IT Admin Full Access-00,8000000000,95000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Factory to MES-00,5000000000,300000,Last usage occurred before 2026-10-08 20:00:00 UTC
+RDP to Servers-00,4000000000,9000,Last usage occurred before 2026-10-08 20:00:00 UTC
+DNS Outbound-00,3000000000,6200000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Finance to SaaS - HTTPS-proxy-00,800000000,5100,Last usage occurred before 2026-10-08 20:00:00 UTC
+Factory PLC Access-00,800000000,42000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Monitoring SNMP-00,700000000,260000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Unhandled Internal Packet-00,500000000,4400000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Ping-00,250000000,3100000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Unhandled External Packet-00,180000000,2900000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Internet Health Check-00,90000000,26000,Last usage occurred before 2026-10-08 20:00:00 UTC
+NTP-00,40000000,80000,Last usage occurred before 2026-10-08 20:00:00 UTC
+Engineering to HMI RDP-00,2000000,4,Last usage occurred before 2026-10-08 20:00:00 UTC
+WatchGuard Web UI-00,2000000,35,Last usage occurred before 2026-10-08 20:00:00 UTC
+BGP Peering-00,1000000,720,Last usage occurred before 2026-10-08 20:00:00 UTC
+Inbound SFTP - Partner-00,40000,3,Last usage occurred before 2026-10-08 20:00:00 UTC
+Staff to Servers 8443-00,0,0,Not used in selected timerange
+Staff to App Server 8443-00,0,0,Not used in selected timerange
+Block Guest to Internal-00,0,0,Not used in selected timerange
+Print Services copy-00,0,0,Not used in selected timerange
+CCTV Cloud Upload-00,0,0,Not used in selected timerange
+WatchGuard-00,0,0,Not used in selected timerange
+Old Mail Inbound-00,0,0,Not used in selected timerange
+TEST any any delete me-00,0,0,Not used in selected timerange
+Vendor RDP - TEMP-00,0,0,Not used in selected timerange
+Allow-IKE-to-Firebox,0,0,Not used in selected timerange

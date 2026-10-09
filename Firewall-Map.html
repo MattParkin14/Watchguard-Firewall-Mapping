@@ -1,0 +1,2144 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firewall Map</title>
+<style>
+:root{
+  --bg:#F3F5F8;--surface:#FFFFFF;--surface2:#EEF1F5;--ink:#18202C;--muted:#5A6576;--faint:#8A93A1;--line:#DCE1E8;
+  --accent:#2D5C88;--accent-soft:#E3ECF5;
+  --red:#C23A2F;--red-bg:#FBE9E7;--amber:#B7790B;--amber-bg:#FBF1DC;--green:#2C8053;--green-bg:#E3F3EA;
+  --violet:#6A55C9;--violet-bg:#EEEAFB;--grey:#7E8794;--grey-bg:#ECEEF1;--brand:#E4002B;
+  --ui:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;--display:Bahnschrift,"Segoe UI",sans-serif;--mono:"Cascadia Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161C;--surface:#1A2029;--surface2:#222A35;--ink:#E4E8EE;--muted:#A1AABA;--faint:#768093;--line:#2E3744;
+  --accent:#7FAEDB;--accent-soft:#1F3043;--red:#F07A6E;--red-bg:#3A1F1D;--amber:#E4AF4E;--amber-bg:#372B14;
+  --green:#62C08C;--green-bg:#16301F;--violet:#A898F2;--violet-bg:#2A2542;--grey:#9AA3B0;--grey-bg:#262D37;color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#12161C;--surface:#1A2029;--surface2:#222A35;--ink:#E4E8EE;--muted:#A1AABA;--faint:#768093;--line:#2E3744;
+  --accent:#7FAEDB;--accent-soft:#1F3043;--red:#F07A6E;--red-bg:#3A1F1D;--amber:#E4AF4E;--amber-bg:#372B14;
+  --green:#62C08C;--green-bg:#16301F;--violet:#A898F2;--violet-bg:#2A2542;--grey:#9AA3B0;--grey-bg:#262D37;color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--ui);min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+header.top{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mark{font:600 18px var(--display);letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+.mark i{display:inline-block;width:6px;height:22px;background:var(--brand);border-radius:2px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-green{background:var(--green-bg);color:var(--green)}.b-red{background:var(--red-bg);color:var(--red)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}.b-violet{background:var(--violet-bg);color:var(--violet)}
+.b-grey{background:var(--grey-bg);color:var(--grey)}.b-accent{background:var(--accent-soft);color:var(--accent)}
+.meta{color:var(--muted);font-size:13px;flex:1;min-width:200px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#12161C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#12161C}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+nav.tabs{display:flex;gap:4px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+main{padding:16px 20px 40px;max-width:1600px;margin:0 auto}
+.lede{color:var(--muted);margin:0 0 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.toolbar label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px}
+input[type=search],input[type=text],select{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+input[type=search],input[type=text]{min-width:260px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.tile b{display:block;font:600 24px var(--display);font-variant-numeric:tabular-nums}
+.tile span{color:var(--muted);font-size:12px}
+/* drop zone */
+#drop{border:2px dashed var(--line);border-radius:10px;padding:48px 20px;text-align:center;background:var(--surface);margin-top:24px}
+#drop.over{border-color:var(--accent);background:var(--accent-soft)}
+#drop h2{font:600 20px var(--display);margin:0 0 6px}
+/* matrix */
+.mx-wrap{overflow:auto;max-height:calc(100vh - 250px);border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.mx{border-collapse:separate;border-spacing:0;font-size:12px}
+table.mx th{background:var(--surface2);font-weight:600;color:var(--muted);position:sticky;z-index:1}
+table.mx thead th{top:0;vertical-align:bottom;padding:6px 2px;height:185px}
+table.mx thead th .vh{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:inline-block;max-height:175px;overflow:hidden;text-overflow:ellipsis}
+table.mx tbody th{left:0;text-align:left;padding:3px 10px;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+table.mx thead th.corner{left:0;z-index:2;text-align:left;vertical-align:bottom;padding:8px 10px;color:var(--faint);font-weight:400}
+table.mx td{width:30px;min-width:30px;height:26px;text-align:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;cursor:pointer;padding:0}
+table.mx td.e{cursor:default}
+table.mx td.self{box-shadow:inset 0 0 0 1px var(--faint)}
+table.mx td:not(.e):hover{outline:2px solid var(--accent);outline-offset:-2px}
+table.mx td.blk{color:var(--red);font-weight:700}
+.zk{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:8px;align-items:center}
+.ramp{display:inline-flex}.ramp i{width:18px;height:12px;display:inline-block}
+/* rule table */
+table.rt{width:100%;border-collapse:collapse;background:var(--surface);font-size:13px}
+table.rt th{position:sticky;top:0;background:var(--surface2);text-align:left;color:var(--muted);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--line);z-index:1}
+table.rt td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.rt tr.r{cursor:pointer}
+table.rt tr.r:hover td{background:var(--accent-soft)}
+table.rt tr.off td{color:var(--faint)}
+.rt-wrap{border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:calc(100vh - 240px)}
+.num{font-variant-numeric:tabular-nums;color:var(--faint);text-align:right}
+.chip{display:inline-block;margin:1px 3px 1px 0;padding:0 6px;border-radius:4px;background:var(--surface2);border:1px solid var(--line);font-size:12px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+.chip.alias{border-color:transparent;background:var(--accent-soft);color:var(--accent)}
+.chip.iface{background:var(--green-bg);color:var(--green);border-color:transparent}
+.chip.user{background:var(--violet-bg);color:var(--violet);border-color:transparent}
+.chip.any{background:var(--amber-bg);color:var(--amber);border-color:transparent;font-weight:600}
+.chip.snat{background:var(--grey-bg);color:var(--ink)}
+.mono{font-family:var(--mono);font-size:12px}
+.more{color:var(--faint);font-size:12px}
+/* drawer */
+#drawer{position:fixed;top:0;right:0;height:100vh;width:min(620px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.12);transform:translateX(105%);transition:transform .18s;z-index:20;display:flex;flex-direction:column}
+#drawer.open{transform:none}
+#drawer .dh{display:flex;align-items:flex-start;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+#drawer .dh h3{margin:0;font:600 17px var(--display);flex:1;word-break:break-word}
+#drawer .db{padding:14px 16px;overflow:auto;flex:1}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:13px;margin-bottom:12px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;word-break:break-word}
+h4{font:600 13px var(--ui);color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px}
+details.ep{border:1px solid var(--line);border-radius:6px;margin-bottom:6px;background:var(--surface)}
+details.ep summary{padding:6px 10px;cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+details.ep ul{margin:0;padding:4px 12px 8px 28px;font-size:12px}
+details.ep li{margin:1px 0}
+.zt{color:var(--faint);font-size:11px;margin-left:6px}
+.list a,.linkish{color:var(--accent);cursor:pointer;text-decoration:none}
+.list a:hover,.linkish:hover{text-decoration:underline}
+.list{margin:0;padding:0;list-style:none}
+.list li{padding:6px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+/* lookup diagram */
+.lk-svg{width:100%;height:auto;display:block}
+.lk-svg text{font-family:var(--ui);fill:var(--ink)}
+.lk-svg .sub{fill:var(--muted);font-size:11px}
+.lk-svg .box{fill:var(--surface);stroke:var(--line)}
+.lk-svg g.rb{cursor:pointer}
+.lk-svg g.rb:hover .box{stroke:var(--accent);stroke-width:2}
+.lk-svg .ctr{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+.sec{margin-bottom:18px}
+.sec h3{font:600 15px var(--display);margin:0 0 4px;display:flex;gap:8px;align-items:center}
+.sec p{margin:0 0 6px;color:var(--muted);font-size:13px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
+@media (max-width:600px){.cols{grid-template-columns:1fr}input[type=search],input[type=text]{min-width:0;width:100%}main{padding:12px 16px}header.top,nav.tabs{padding-left:16px;padding-right:16px}}
+footer{color:var(--faint);font-size:12px;text-align:center;padding:16px}
+.selchip{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 4px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;max-width:100%}
+.selchip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;padding:0 6px}
+.selchip button:hover{color:var(--red)}
+.cmp-n{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:999px;background:var(--accent);color:var(--surface);font-size:11px;font-weight:700;padding:0 5px}
+.cmp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.cmp-card{padding:10px 12px;min-width:0}.cmp-card.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.cmp-h{display:flex;gap:8px;align-items:center;margin-bottom:2px}.cmp-t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-card .more{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-c{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;font-size:12px}
+table.cmp th.c,table.cmp td.c{text-align:center;white-space:nowrap}
+table.cmp tr.same td{background:var(--surface2)}
+table.cmp tr.r.same:hover td{background:var(--accent-soft)}
+.via{color:var(--faint);font-size:11px}
+.w-stage{position:relative;height:min(72vh,780px);min-height:420px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+#w-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.w-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:320px}
+.w-tip span{color:var(--muted)}
+.w-hint{position:absolute;right:12px;bottom:10px;color:var(--faint);font-size:12px;pointer-events:none}
+#w-focus{min-width:220px}
+body:not(.has-usage) .uonly{display:none!important}
+.ubar{height:3px;background:var(--surface2);border-radius:2px;margin-top:3px;min-width:46px}.ubar i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.uc{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.upill{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.mx.um td{min-width:40px;width:40px;font-size:11px}
+table.mx td.zero{color:var(--amber);font-weight:700;background:repeating-linear-gradient(45deg,transparent 0 4px,color-mix(in srgb,var(--amber) 14%,transparent) 4px 8px)}
+table.mx td.allidle{font-weight:700}
+table.mx td.quiet{color:var(--faint)}
+.note{background:var(--accent-soft);color:var(--ink);padding:10px 14px;border-radius:6px;margin-bottom:12px}
+#banner.err{margin:0 0 12px}
+.warnline{background:var(--amber-bg);color:var(--ink);padding:6px 10px;border-radius:6px}
+a.btn{color:inherit;text-decoration:none;display:inline-flex;align-items:center}
+.steps{margin:6px 0 10px;padding-left:20px}.steps li{margin:3px 0}
+.wgcset summary{cursor:pointer}
+
+body[data-level="simple"] [data-lvl="medium"],body[data-level="simple"] [data-lvl="advanced"],body[data-level="medium"] [data-lvl="advanced"]{display:none!important}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:6px 12px;cursor:pointer;color:var(--muted);font-size:13px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
+.lvlwrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.pt{margin-bottom:16px}.pt h3,.subhead{font:600 16px var(--display);margin:0 0 4px}
+.pt input{min-width:200px}
+.pt-res{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.pt-v{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:15px}
+.verdict{font:700 15px var(--display);padding:3px 12px;border-radius:999px;white-space:nowrap}
+.v-yes{background:var(--green-bg);color:var(--green)}.v-no{background:var(--red-bg);color:var(--red)}
+.plain{font-size:14px;margin:0 0 10px}
+.riskbox{background:var(--amber-bg);border-radius:6px;padding:8px 10px;margin:0 0 10px;font-size:13px}
+.diff{font-size:12px;margin:3px 0 0 4px}.diff .old{color:var(--red);text-decoration:line-through}.diff .new{color:var(--green)}
+.rbadges{margin-top:3px;display:flex;gap:4px;flex-wrap:wrap}
+ol.fix{margin:6px 0 0;padding-left:22px}ol.fix li{padding:6px 0;border-bottom:1px solid var(--line)}
+hr.sep{border:0;border-top:2px solid var(--line);margin:6px 0}
+.rev .seg button{padding:5px 10px}
+body:not([data-level="simple"]) [data-simple-only]{display:none!important}
+.pt>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:10px;margin:0 0 4px}
+.pt>summary::-webkit-details-marker{display:none}
+.pt>summary h3::before{content:'▾';display:inline-block;width:16px;color:var(--muted);transition:transform .15s}
+.pt:not([open])>summary h3::before{transform:rotate(-90deg)}
+.pt:not([open]){padding-bottom:10px}.pt:not([open])>summary{margin:0}
+.btn.small{padding:3px 8px;font-size:12px}
+.revdates label{font-size:13px}.revdates input[type=date]{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+header.top{gap:10px}header.top .btn{padding:6px 10px}.lvlwrap>span{display:none}@media(min-width:1500px){.lvlwrap>span{display:inline}}
+.meta{min-width:160px}
+.cmphead{display:grid;grid-template-columns:1fr auto 1fr auto;gap:14px;align-items:center;margin-bottom:12px}
+.cmpfile{display:flex;flex-direction:column;gap:2px;min-width:0}.cmpfile b{word-break:break-all}
+.cmparrow{font:600 22px var(--display);color:var(--accent);text-align:center;display:flex;flex-direction:column}
+.cmpact{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:900px){.cmphead{grid-template-columns:1fr}.cmparrow{flex-direction:row;gap:8px;align-items:baseline}.cmpact{justify-content:flex-start}}
+.chip.ad{background:var(--green-bg);color:var(--green);border-color:transparent}
+.chip.rm{background:var(--red-bg);color:var(--red);border-color:transparent;text-decoration:line-through}
+.fd{display:flex;flex-wrap:wrap;gap:4px;align-items:baseline;margin:4px 0;font-size:13px}
+.fk{font-weight:600;min-width:90px;color:var(--muted)}
+.fd .old{color:var(--red);text-decoration:line-through}.fd .new{color:var(--green)}
+details.chrow{border-bottom:1px solid var(--line)}
+details.chrow>summary{list-style:none;cursor:pointer;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;padding:7px 4px}
+details.chrow>summary::-webkit-details-marker{display:none}
+details.chrow>summary:hover{background:var(--accent-soft)}
+details.chrow[open]>summary{background:var(--surface2)}
+.chsum{flex-basis:100%;padding-left:2px}
+.chbody{padding:4px 8px 10px 14px}
+.hidden{display:none!important}
+.err{background:var(--red-bg);color:var(--red);padding:10px 14px;border-radius:6px;margin-top:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="mark"><i></i>Firewall Map</div>
+  <span class="badge b-green" title="This page never changes the firewall or the file">Read-only</span>
+  <div class="lvlwrap" title="How much detail to show across every tab"><span>Detail</span><div class="seg" id="lvl" role="group" aria-label="Detail level"><button type="button" data-l="simple">Simple</button><button type="button" data-l="medium">Medium</button><button type="button" data-l="advanced">Advanced</button></div></div>
+  <div class="meta" id="meta">No export loaded.</div>
+  <label class="btn primary" for="file">Load export XML</label>
+  <input type="file" id="file" accept=".xml,text/xml" class="hidden">
+  <label class="btn" for="ufile" id="ubtn" title="WatchGuard Cloud › Reports › Policy Usage › export CSV">Load usage CSV</label>
+  <input type="file" id="ufile" accept=".csv,text/csv" class="hidden">
+  <a class="btn wgclink" id="wgclink" target="_blank" rel="noopener noreferrer" title="Opens WatchGuard Cloud (sign-in needed), or your Firebox's Policy Usage report once its link is saved on the Clean-up tab. Choose the time range, export the CSV, then use Load usage CSV.">Open Policy Usage ↗</a>
+  <button class="btn" id="cmp-open" data-lvl="medium" title="Compare with an older export or usage file">Compare…</button>
+  <button class="btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme">Theme</button>
+</header>
+<nav class="tabs hidden" id="tabs" role="tablist">
+  <button role="tab" data-tab="matrix" aria-selected="true">Zone matrix</button>
+  <button role="tab" data-tab="rules" aria-selected="false">Rules</button>
+  <button role="tab" data-tab="lookup" aria-selected="false">Object lookup</button>
+  <button role="tab" data-tab="web" aria-selected="false">Relationship web</button>
+  <button role="tab" data-tab="cleanup" aria-selected="false">Clean-up</button>
+  <button role="tab" data-tab="changes" id="tab-changes" aria-selected="false" class="hidden">Changes</button>
+</nav>
+<main>
+  <div id="banner" class="hidden"></div>
+  <section id="drop">
+    <h2>Load a WatchGuard configuration export</h2>
+    <p class="lede">Drop the Policy Manager XML here, or use <b>Load export XML</b>. You can also add a Policy Usage CSV from <a class="linkish wgclink" target="_blank" rel="noopener noreferrer">WatchGuard Cloud › Reports › Policy Usage ↗</a> to see how much each policy is actually used. Files are read in this browser only. Nothing is uploaded or changed.</p>
+    <div id="loaderr"></div>
+  </section>
+
+  <section id="v-matrix" class="view hidden">
+    <p class="lede">Which zones each policy lets traffic flow between. Rows are where traffic comes from and columns are where it goes. Each cell counts the policies that allow that flow. Click a cell to see them.<span class="uonly"> With a usage file loaded, colour by <b>Hits</b> to see where traffic actually flows<span data-lvl="medium">, by <b>Data</b>, or by <b>Unused paths</b> to see paths that are allowed but carried nothing</span>.</span> The list under the matrix shows what the internet can reach.</p>
+    <div class="tiles" id="tiles"></div>
+    <div class="toolbar">
+      <label class="uonly">Colour by <select id="mx-metric"><option value="count">Number of policies</option><option value="hits">Hits</option><option value="bytes" data-lvl="medium">Data</option><option value="idle" data-lvl="medium">Unused paths</option></select></label>
+      <label data-lvl="medium"><input type="checkbox" id="mx-dis"> Include disabled policies</label>
+      <label data-lvl="medium"><input type="checkbox" id="mx-any"> Show broad zones (Any, Any-Trusted, Any-Optional)</label>
+      <label data-lvl="advanced"><input type="checkbox" id="mx-empty"> Show zones with no policies</label>
+    </div>
+    <p class="more hidden" id="mx-note" style="margin:0 0 8px">A policy that covers several zone pairs counts its full traffic in each cell, because the usage file gives one total per policy. Read a cell as the most that could have flowed there.</p>
+    <div class="mx-wrap"><table class="mx" id="mx"></table></div>
+    <div class="legend" id="mx-legend"></div>
+    <div id="expo" style="margin-top:16px"></div>
+  </section>
+
+  <section id="v-rules" class="view hidden">
+    <p class="lede">Every policy in the order the Firebox checks them, with aliases resolved. Search matches names, aliases, IPs (including addresses inside subnets and ranges) and ports. Click a policy for detail.</p>
+    <div class="toolbar">
+      <input type="search" id="rq" placeholder="Search, e.g. 10.130.0.20, SQL, tcp/445">
+      <select id="rview"><option value="">All policies</option><option value="attention">Needs attention</option><option value="high" data-lvl="medium">High risk only</option><option value="shadowed" data-lvl="advanced">Never reached</option><option value="hygiene" data-lvl="advanced">Tidy-up issues</option></select>
+      <select id="rtag" data-lvl="medium"><option value="">All tags</option></select>
+      <select id="ract" data-lvl="medium"><option value="">All actions</option><option>Allow</option><option>Proxy</option><option>Block</option></select>
+      <label data-lvl="medium"><input type="checkbox" id="rdis" checked> Show disabled</label>
+      <select id="ruse" class="uonly" data-lvl="medium"><option value="">All usage</option><option value="used">With traffic</option><option value="idle">No traffic</option><option value="rare">Rarely used</option><option value="busy">Busy</option><option value="heavy">Heavy data</option></select>
+      <select id="rdec" data-lvl="medium"><option value="">Any review state</option><option value="none">Not reviewed</option><option value="any">Reviewed</option><option value="accepted">Accepted</option><option value="due">Re-review due or soon</option><option value="tighten">Tighten</option><option value="disable">Disable</option><option value="remove">Remove</option></select>
+      <select id="rchg" data-lvl="medium" class="hidden"><option value="">All, changed or not</option><option value="any">Changed since older export</option><option value="added">Added</option><option value="edited">Edited</option><option value="broader">Now allows more</option><option value="renamed">Renamed</option><option value="moved">Moved</option><option value="via">Changed via alias</option></select>
+      <select id="rsort" data-lvl="medium"><option value="order">Firebox order</option><option value="risk">Highest risk first</option><option value="hits" class="uonly">Most hits first</option><option value="bytes" class="uonly">Most data first</option><option value="least" class="uonly">Least used first</option></select>
+      <span id="rzone"></span>
+      <span class="more" id="rcount"></span>
+    </div>
+    <div class="rt-wrap"><table class="rt" id="rt"></table></div>
+  </section>
+
+  <section id="v-lookup" class="view hidden">
+    <details class="card pt" id="pt-box" open><summary><h3>Can A reach B?</h3><span class="more pt-hint">Click to show or hide</span></summary><p class="more" style="margin:0 0 8px">Checks the enabled policies top to bottom, the way the Firebox does, and shows which one decides. Leave the port empty to see everything allowed between the two.</p>
+      <div class="toolbar" style="margin:0"><input type="text" id="pt-src" list="lq-list" placeholder="From: IP or host, e.g. 10.120.1.20"><button class="btn" id="pt-swap" title="Swap From and To">⇄</button><input type="text" id="pt-dst" list="lq-list" placeholder="To: IP or host, e.g. App-Server">
+      <select id="pt-proto" data-lvl="advanced" title="Protocol when the port is a plain number"><option>tcp</option><option>udp</option></select><input type="text" id="pt-port" placeholder="Port (optional), e.g. 443, udp/53, rdp" style="min-width:200px"><button class="btn primary" id="pt-go">Check</button></div>
+      <div id="pt-out"></div></details>
+    <h3 class="subhead">Object lookup</h3>
+    <p class="lede">Pick a host, IP address, alias or interface to see every policy into it and out of it.<span data-lvl="medium"> Add up to eight to compare them side by side.</span></p>
+    <div class="toolbar">
+      <input type="text" id="lq" list="lq-list" placeholder="Add e.g. App-Server, 10.130.0.20, Domain-Controllers">
+      <datalist id="lq-list"></datalist>
+      <button class="btn primary" id="lgo">Add</button>
+      <button class="btn" id="lclear">Clear all</button>
+      <label data-lvl="medium" title="For an IP: also count policies that match it only through its whole VLAN, Any-Trusted or Any"><input type="checkbox" id="lbroad"> Include zone-wide and Any policies</label>
+    </div>
+    <div class="toolbar" id="lsel"></div>
+    <div id="lout"></div>
+  </section>
+
+  <section id="v-web" class="view hidden">
+    <p class="lede">A 3D web of how things connect through policies. It turns on its own; drag to turn it yourself, scroll to zoom, hover a node to light up its links (green = traffic out, blue = traffic in) and click a node for its policies.</p>
+    <div class="toolbar">
+      <label data-lvl="medium">Show <select id="w-level">
+        <option value="zones">Zones linked by policies</option>
+        <option value="objects" selected>Objects linked by policies</option>
+        <option value="policies" data-lvl="advanced">Policies and the objects they use</option>
+      </select></label>
+      <input type="text" id="w-focus" list="w-list" placeholder="Focus on, e.g. Domain-Controllers" data-lvl="medium">
+      <datalist id="w-list"></datalist>
+      <select id="w-hops" data-lvl="medium" title="How far out from the focused node to show"><option value="1">1 step out</option><option value="2">2 steps out</option><option value="3">3 steps out</option></select>
+      <button class="btn primary" id="w-go" data-lvl="medium">Focus</button>
+      <button class="btn" id="w-clear" data-lvl="medium">Show all</button>
+      <span class="more" data-simple-only>Showing how the zones connect. Switch to Medium to explore individual hosts and aliases.</span>
+    </div>
+    <div class="toolbar">
+      <label><input type="checkbox" id="w-rot" checked> Rotate</label>
+      <label data-lvl="advanced">Speed <input type="range" id="w-speed" min="0.2" max="3" step="0.1" value="1"></label>
+      <label data-lvl="medium"><input type="checkbox" id="w-broad" checked> Hide broad aliases (Any, Any-Trusted, Any-Optional)</label>
+      <label data-lvl="advanced"><input type="checkbox" id="w-dis"> Include disabled policies</label>
+      <label data-lvl="medium"><input type="checkbox" id="w-labels"> Label every node</label>
+      <label class="uonly" data-lvl="medium">Size by <select id="w-weigh"><option value="count">Number of policies</option><option value="hits" selected>Hits</option><option value="bytes">Data</option></select></label>
+      <label class="uonly"><input type="checkbox" id="w-flow" checked> Show traffic flow</label>
+      <label class="uonly" data-lvl="advanced"><input type="checkbox" id="w-idle" checked> Mark links with no traffic</label>
+      <button class="btn" id="w-reset">Reset view</button>
+      <span class="more" id="w-stats"></span>
+    </div>
+    <div class="err hidden" id="w-msg" style="margin:0 0 10px"></div>
+    <div class="w-stage" id="w-stage">
+      <canvas id="w-canvas" tabindex="0" aria-label="3D relationship web. Arrow keys turn it, plus and minus zoom."></canvas>
+      <div class="w-tip hidden" id="w-tip"></div>
+      <div class="w-hint">Drag to turn · scroll to zoom · click a node</div>
+    </div>
+    <div class="legend">
+      <span><span class="zk" style="background:var(--green)"></span>Trusted VLAN</span><span><span class="zk" style="background:var(--accent)"></span>Optional VLAN</span>
+      <span><span class="zk" style="background:var(--grey)"></span>Custom zone / other internal</span><span><span class="zk" style="background:var(--violet)"></span>VPN / authenticated users</span>
+      <span><span class="zk" style="background:var(--amber)"></span>Broad alias</span><span><span class="zk" style="background:var(--red)"></span>External / internet</span>
+      <span><span class="zk" style="background:var(--muted);border-radius:0"></span>Policy (square)</span>
+      <span>Bigger node / thicker link = more policies, or more traffic when a usage file is loaded and Size by is set. Red link = includes a Block policy.</span>
+      <span class="uonly">Moving dots = traffic, travelling in its direction. Dashed amber link = allowed, but no traffic in the window.</span>
+    </div>
+  </section>
+
+  <section id="v-changes" class="view hidden">
+    <p class="lede">What changed between an older export of this Firebox and the current one. Security impact comes first, then every change in detail.</p>
+    <div id="chout"></div>
+  </section>
+
+  <section id="v-cleanup" class="view hidden">
+    <p class="lede">Things worth reviewing. This list only points them out; nothing is changed.</p>
+    <div id="cout" class="cols"></div>
+  </section>
+</main>
+<aside id="drawer" aria-hidden="true">
+  <div class="dh"><button class="btn hidden" id="dback" title="Back">&larr;</button><h3 id="dtitle"></h3><button class="btn" id="dclose" title="Close">&times;</button></div>
+  <div class="db" id="dbody"></div>
+</aside>
+<footer>Firewall Map prototype. Version: see README.md in this folder. Reads WatchGuard Policy Manager XML (Fireware 12.x).</footer>
+
+<script>
+"use strict";
+/* ---------- small helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function ip2n(s){const p=String(s).split('.');if(p.length!==4)return null;let n=0;for(const x of p){if(!/^\d{1,3}$/.test(x))return null;const v=+x;if(v>255)return null;n=n*256+v}return n}
+function n2ip(n){return [Math.floor(n/16777216)%256,Math.floor(n/65536)%256,Math.floor(n/256)%256,n%256].join('.')}
+function maskBits(m){const n=ip2n(m);if(n==null)return 32;let b=0;for(let i=31;i>=0;i--){if(Math.floor(n/2**i)%2)b++;else break}return b}
+function netRange(ip,bits){const n=ip2n(ip);const sz=2**(32-bits);const lo=Math.floor(n/sz)*sz;return [lo,lo+sz-1]}
+const isPrivate=n=>(n>=ip2n('10.0.0.0')&&n<=ip2n('10.255.255.255'))||(n>=ip2n('172.16.0.0')&&n<=ip2n('172.31.255.255'))||(n>=ip2n('192.168.0.0')&&n<=ip2n('192.168.255.255'));
+const PROTO={'0':'any','1':'icmp','6':'tcp','17':'udp','47':'gre','50':'esp','51':'ah','58':'icmpv6'};
+
+/* ---------- state ---------- */
+let D=null;            // parsed model
+let ruleFilterZone=null; // {src,dst} from matrix click
+let drawerStack=[];
+
+/* ---------- XML parsing ---------- */
+function parseExport(text,fileName){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  if(doc.getElementsByTagName('parsererror').length) throw new Error('The file is not valid XML.');
+  const root=doc.documentElement;
+  if(root.tagName!=='profile'||!kid(root,'abs-policy-list')) throw new Error('This does not look like a WatchGuard Policy Manager export (no <profile> with <abs-policy-list>).');
+  function kid(el,tag){if(!el)return null;for(const c of el.children)if(c.tagName===tag)return c;return null}
+  function kids(el,tag){return el?[...el.children].filter(c=>c.tagName===tag):[]}
+  function T(el,tag){const c=kid(el,tag);return c?c.textContent.trim():''}
+  function path(el,...tags){for(const t of tags){el=kid(el,t);if(!el)return null}return el}
+  function obj(el){const o={};for(const c of el.children)o[c.tagName]=c.textContent.trim();return o}
+  const list=tag=>{const l=kid(root,tag);return l?[...l.children]:[]};
+
+  // address groups -> leaves
+  const AG={};
+  for(const g of list('address-group-list')){
+    const leaves=[];
+    for(const m of g.getElementsByTagName('member')) {const l=mkLeaf(obj(m)); if(l) leaves.push(l)}
+    AG[T(g,'name')]={desc:T(g,'description'),leaves};
+  }
+  function mkLeaf(m){
+    switch(m.type){
+      case '1':{const n=ip2n(m['host-ip-addr']);return {k:'host',t:m['host-ip-addr'],lo:n,hi:n}}
+      case '2':{const b=maskBits(m['ip-mask']);if(m['ip-network-addr']==='0.0.0.0'&&b===0)return {k:'any',t:'Any IP',lo:0,hi:4294967295};const [lo,hi]=netRange(m['ip-network-addr'],b);return {k:'net',t:n2ip(lo)+'/'+b,lo,hi}}
+      case '3':return {k:'range',t:m['start-ip-addr']+' – '+m['end-ip-addr'],lo:ip2n(m['start-ip-addr']),hi:ip2n(m['end-ip-addr'])}
+      case '8':return {k:'fqdn',t:m.domain}
+      case '9':{const b=maskBits(m['wildcard-ip-mask']);const [lo,hi]=netRange(m['wildcard-ip-addr'],b);return {k:'net',t:m['wildcard-ip-addr']+' / '+m['wildcard-ip-mask'],lo,hi}}
+      case '10':return {k:'dyn',t:'Dynamic: '+m['dynamic-addrs']}
+      default:return null;
+    }
+  }
+  // aliases
+  const AL={};
+  for(const a of list('alias-list')){
+    const mem=[];
+    const ml=kid(a,'alias-member-list');
+    for(const m of kids(ml,'alias-member'))mem.push(obj(m));
+    AL[T(a,'name')]={name:T(a,'name'),desc:T(a,'description'),prop:T(a,'property'),members:mem};
+  }
+  // services
+  const SV={};
+  for(const s of list('service-list')){
+    const ports=[];
+    for(const m of s.getElementsByTagName('member')){
+      const o=obj(m);const pr=PROTO[o.protocol]||('proto '+o.protocol);
+      if('server-port' in o) ports.push(o['server-port']==='0'?(pr==='any'?'any':pr+'/any'):pr+'/'+o['server-port']);
+      else if('start-server-port' in o) ports.push(pr+'/'+o['start-server-port']+'-'+o['end-server-port']);
+      else if(pr==='icmp'&&o['icmp-type']) ports.push(o['icmp-type']==='255'?'icmp':'icmp type '+o['icmp-type']);
+      else ports.push(pr);
+    }
+    SV[T(s,'name')]={desc:T(s,'description'),proxy:T(s,'proxy-type'),ports:[...new Set(ports)]};
+  }
+  // interfaces -> zones
+  const KIND={'1':'Trusted','2':'External','3':'Optional','8':'Custom'};
+  const IF={};
+  for(const i of list('interface-list')){
+    const name=T(i,'name');const prop=T(i,'property');
+    const vp=i.getElementsByTagName('vif-property')[0], ip=i.getElementsByTagName('if-property')[0];
+    const code=vp?vp.textContent.trim():(ip?ip.textContent.trim():'');
+    const ipEl=i.getElementsByTagName('ip')[0], nmEl=i.getElementsByTagName('netmask')[0], vl=i.getElementsByTagName('vlan-id')[0];
+    const rec={name,builtin:prop==='4',kind:KIND[code]||(prop==='4'?'Built-in':'Other'),vlan:vl?vl.textContent.trim():'',ip:ipEl?ipEl.textContent.trim():'',mask:nmEl?nmEl.textContent.trim():''};
+    if(rec.ip&&rec.ip!=='0.0.0.0'&&rec.mask){const b=maskBits(rec.mask);[rec.lo,rec.hi]=netRange(rec.ip,b);rec.cidr=n2ip(rec.lo)+'/'+b}
+    IF[name]=rec;
+  }
+  // static NAT
+  const NAT={};
+  for(const n of list('nat-list')){
+    const items=[];for(const m of n.getElementsByTagName('member'))items.push(obj(m));
+    NAT[T(n,'name')]={name:T(n,'name'),items};
+  }
+  // policies
+  const P=[];
+  list('abs-policy-list').forEach((p,ix)=>{
+    const alias=tag=>kids(kid(p,tag),'alias').map(a=>a.textContent.trim());
+    const tags=kids(kid(p,'tag-list'),'tag').map(t=>t.textContent.trim());
+    const settings=kid(p,'settings');
+    const prx=path(p,'settings','proxy');
+    P.push({i:ix+1,name:T(p,'name'),service:T(p,'service'),enabled:T(p,'enabled')==='true',action:T(p,'firewall')||'?',
+      desc:T(p,'description'),from:alias('from-alias-list'),to:alias('to-alias-list'),tags,
+      pnames:kids(kid(p,'policy-list'),'policy').map(x=>x.textContent.trim()),ips:T(settings,'ips-monitor-enabled')!=='false',sched:T(settings,'schedule'),log:T(settings,'log-enabled')==='true',proxyAction:prx?prx.textContent.trim().replace(/\s+/g,' '):''});
+  });
+  const ao=root.getElementsByTagName('auto-order-enabled')[0];
+  const revTimes=[...root.getElementsByTagName('revision')].map(rv=>+((rv.getElementsByTagName('time')[0]||{}).textContent||0)).filter(Boolean);
+  const metaInfo={file:fileName,version:T(root,'for-version'),saved:revTimes.length?Math.max(...revTimes)*1000:null,autoOrder:!!ao&&ao.textContent.trim()==='1',
+    revision:(()=>{const rh=kid(root,'revision-history');if(!rh)return '';const last=rh.children[rh.children.length-1];return last?last.textContent.trim().replace(/\s+/g,' ').slice(0,120):''})()};
+  return build({AG,AL,SV,IF,NAT,P,metaInfo});
+}
+
+/* ---------- model building ---------- */
+function build(R){
+  const {AG,AL,SV,IF,NAT,P}=R;
+  const isPolicyAlias=n=>/\.(from|to)$/.test(n)||/^dnat\.from\.\d+$/.test(n);
+  const ifaceAliasNames=new Set(Object.keys(AL).filter(n=>IF[n]));
+  const stripUser=u=>u.replace(/\.\d+$/,'');
+
+  // --- leaves of a named alias (recursive) ---
+  const memo={};
+  function aliasLeaves(name,seen=new Set()){
+    if(memo[name])return memo[name];
+    if(seen.has(name))return [];
+    seen.add(name);
+    let out=[];
+    if(/\.snat$/.test(name)&&NAT[name.replace(/\.snat$/,'')]) out=natLeaves(name.replace(/\.snat$/,''));
+    else{
+      const a=AL[name];
+      if(!a){out=AG[name]?AG[name].leaves.slice():[{k:'unknown',t:name}]}
+      else for(const m of a.members){
+        if(m.type==='2'){out=out.concat(aliasLeaves(m['alias-name'],seen))}
+        else out=out.concat(tupleLeaves(m));
+      }
+    }
+    memo[name]=dedupe(out);return memo[name];
+  }
+  function tupleLeaves(m){
+    const out=[];const ad=m.address||'Any',itf=m.interface||'Any',us=m.user||'Any';
+    if(us!=='Any')out.push({k:'user',t:stripUser(us)});
+    if(ad!=='Any'&&ad!==itf&&AG[ad])out.push(...AG[ad].leaves);
+    else if(ad!=='Any'&&ad!==itf)out.push({k:'unknown',t:ad});
+    if(itf!=='Any'&&(ad==='Any'||ad===itf))out.push({k:'iface',t:itf});
+    if(!out.length)out.push({k:'any',t:'Any'});
+    return out;
+  }
+  function natLeaves(nn){
+    const out=[];for(const it of NAT[nn].items){if(it['addr-name']&&AG[it['addr-name']])out.push(...AG[it['addr-name']].leaves)}
+    return out.length?out:[{k:'unknown',t:nn}];
+  }
+  function natLabel(nn){
+    const parts=[];for(const it of NAT[nn].items){
+      const ext=AG[it['ext-addr-name']]?AG[it['ext-addr-name']].leaves.map(l=>l.t).join(', '):(it.interface||'');
+      const int=AG[it['addr-name']]?AG[it['addr-name']].leaves.map(l=>l.t).join(', '):'';
+      parts.push(ext+' → '+int+(it.port&&it.port!=='0'?':'+it.port:''));
+    }return parts.join('; ');
+  }
+  function dedupe(arr){const s=new Set();return arr.filter(l=>{const k=l.k+'|'+l.t;if(s.has(k))return false;s.add(k);return true})}
+
+  // --- named host lookup (IP -> alias name) and fqdn -> ip ---
+  const namedAliases=Object.keys(AL).filter(n=>!isPolicyAlias(n)&&!/\.snat$/.test(n));
+  const ipName={};const fqdnLeaves={};
+  for(const n of namedAliases){
+    if(AL[n].prop==='4')continue;
+    const lv=aliasLeaves(n);
+    const hosts=lv.filter(l=>l.k==='host');
+    if(hosts.length===1&&lv.filter(l=>l.k!=='fqdn').length===1){ipName[hosts[0].t]=ipName[hosts[0].t]||n}
+    for(const f of lv.filter(l=>l.k==='fqdn')){const ips=lv.filter(l=>l.lo!=null);if(ips.length)fqdnLeaves[f.t.toLowerCase()]=ips}
+  }
+  // fqdn hostname matches an alias name with IPs (e.g. sql01.corp.example -> alias SQL01)
+  const aliasByLower={};for(const n of namedAliases)aliasByLower[n.toLowerCase()]=n;
+  function fqdnIPs(f){f=f.toLowerCase();if(fqdnLeaves[f])return fqdnLeaves[f];const h=f.split('.')[0];const a=aliasByLower[h];if(a){const ips=aliasLeaves(a).filter(l=>l.lo!=null);if(ips.length)return ips}return null}
+
+  // --- zones ---
+  const Z={};const zoneOrder=[];
+  function addZone(id,label,kind,extra){if(!Z[id]){Z[id]=Object.assign({id,label,kind},extra||{});zoneOrder.push(id)}return id}
+  addZone('Any','Any','broad');addZone('Any-Trusted','Any-Trusted','broad');addZone('Any-Optional','Any-Optional','broad');
+  addZone('Users','Authenticated users','identity');addZone('Mobile VPN','Mobile VPN (SSL / IKEv2)','vpn');addZone('Branch VPN','Branch office VPN','vpn');
+  const kindRank={Trusted:1,Optional:2,Custom:3,External:4};
+  const realIfs=Object.values(IF).filter(f=>f.cidr&&kindRank[f.kind]).sort((a,b)=>kindRank[a.kind]-kindRank[b.kind]||(+a.vlan||0)-(+b.vlan||0)||a.name.localeCompare(b.name));
+  for(const f of realIfs){ if(f.kind==='External'&&!isPublicDmz(f)) continue; addZone('if:'+f.name,f.name,f.kind,{cidr:f.cidr,vlan:f.vlan,lo:f.lo,hi:f.hi}) }
+  function isPublicDmz(f){return false}
+  addZone('Other internal','Other internal (routed / remote)','internal');addZone('Internal FQDN','Internal name (no IP known)','internal');
+  addZone('Firebox','Firebox itself','firebox');addZone('External','Internet / External','external');
+  const subnetZones=zoneOrder.map(id=>Z[id]).filter(z=>z.lo!=null).sort((a,b)=>(a.hi-a.lo)-(b.hi-b.lo));
+  const extIfNames=new Set(Object.values(IF).filter(f=>f.kind==='External').map(f=>f.name));
+  function zoneOfRange(lo,hi){
+    if(lo===0&&hi===4294967295)return ['Any'];
+    for(const z of subnetZones)if(lo>=z.lo&&hi<=z.hi)return [z.id];
+    if(isPrivate(lo)||isPrivate(hi)){
+      const ov=subnetZones.filter(z=>z.lo<=hi&&z.hi>=lo).map(z=>z.id);
+      return ov.length>1?ov:['Other internal'];
+    }
+    return ['External'];
+  }
+  function zonesOfLeaf(l){
+    switch(l.k){
+      case 'any':return ['Any'];
+      case 'host':case 'net':case 'range':return zoneOfRange(l.lo,l.hi);
+      case 'fqdn':{const ips=fqdnIPs(l.t);if(ips)return [...new Set(ips.flatMap(i=>zoneOfRange(i.lo,i.hi)))];return (/\.local$/i.test(l.t)||!l.t.includes('.'))?['Internal FQDN']:['External']}
+      case 'dyn':return ['External'];
+      case 'user':return ['Users'];
+      case 'iface':{const n=l.t;
+        if(n==='Any'||n==='Any-Multicast')return ['Any'];if(n==='Any-Trusted')return ['Any-Trusted'];if(n==='Any-Optional')return ['Any-Optional'];
+        if(n==='Any-External'||extIfNames.has(n))return ['External'];if(n==='Firebox')return ['Firebox'];
+        if(n==='SSL-VPN'||n==='Any-MUVPN'||/IKEv2/i.test(n))return ['Mobile VPN'];if(n==='Any-BOVPN'||/^Vif-/.test(n))return ['Branch VPN'];
+        if(Z['if:'+n])return ['if:'+n];return ['Other internal']}
+      default:return ['Other internal'];
+    }
+  }
+
+  // --- chips for one side of a policy ---
+  function sideChips(aliasNames){
+    const chips=[];
+    for(const an of aliasNames){
+      const a=AL[an];
+      if(!a){chips.push(namedChip(an));continue}
+      for(const m of a.members){
+        if(m.type==='2'){chips.push(namedChip(m['alias-name']));continue}
+        const lv=tupleLeaves(m);
+        for(const l of lv){
+          if(l.k==='iface')chips.push({kind:l.t.startsWith('Any')?'any':'iface',label:l.t,ref:AL[l.t]?l.t:null,leaves:[l]});
+          else if(l.k==='user')chips.push({kind:'user',label:l.t,ref:null,leaves:[l]});
+          else if(l.k==='any')chips.push({kind:'any',label:'Any',ref:null,leaves:[l]});
+          else chips.push({kind:'ip',label:(ipName[l.t]?ipName[l.t]+' ('+l.t+')':l.t),ref:ipName[l.t]||null,leaves:[l]});
+        }
+      }
+    }
+    return chips;
+  }
+  function namedChip(n){
+    if(/\.snat$/.test(n)&&NAT[n.replace(/\.snat$/,'')]){const nn=n.replace(/\.snat$/,'');return {kind:'snat',label:'NAT '+nn,title:natLabel(nn),ref:n,leaves:aliasLeaves(n)}}
+    const a=AL[n];const lv=aliasLeaves(n);
+    if(a&&a.prop==='4'&&/^Any/.test(n))return {kind:'any',label:n,ref:n,leaves:lv};
+    if(ifaceAliasNames.has(n))return {kind:'iface',label:n,ref:n,leaves:lv};
+    return {kind:'alias',label:n,ref:n,leaves:lv};
+  }
+  // --- nested alias references (for "where used") ---
+  const refMemo={};
+  function aliasRefs(n,seen=new Set()){
+    if(refMemo[n])return refMemo[n];if(seen.has(n))return new Set();seen.add(n);
+    const s=new Set([n]);const a=AL[n];
+    if(a)for(const m of a.members){if(m.type==='2')for(const x of aliasRefs(m['alias-name'],seen))s.add(x);
+      else{if(m.interface&&m.interface!=='Any'&&AL[m.interface]&&m.interface!==n)s.add(m.interface);}}
+    refMemo[n]=s;return s;
+  }
+
+  const rules=P.map(p=>{
+    const sv=SV[p.service]||{ports:[p.service],proxy:'',desc:''};
+    const from=sideChips(p.from),to=sideChips(p.to);
+    const fromLeaves=dedupe(from.flatMap(c=>c.leaves)),toLeaves=dedupe(to.flatMap(c=>c.leaves));
+    const refsFrom=new Set(),refsTo=new Set();
+    from.forEach(c=>{if(c.ref)aliasRefs(c.ref).forEach(x=>refsFrom.add(x))});
+    to.forEach(c=>{if(c.ref)aliasRefs(c.ref).forEach(x=>refsTo.add(x))});
+    const fromZones=new Set(fromLeaves.flatMap(zonesOfLeaf)),toZones=new Set(toLeaves.flatMap(zonesOfLeaf));
+    const anyPort=sv.ports.some(x=>x==='any'||/\/any$/.test(x));
+    return Object.assign({},p,{ports:sv.ports,proxyType:sv.proxy,svcDesc:sv.desc,from,to,fromLeaves,toLeaves,refsFrom,refsTo,fromZones,toZones,anyPort,
+      text:[p.name,p.desc,p.service,...p.tags,...sv.ports,...from.map(c=>c.label),...to.map(c=>c.label),...fromLeaves.map(l=>l.t),...toLeaves.map(l=>l.t),...refsFrom,...refsTo].join('\n').toLowerCase()});
+  });
+
+  // unused aliases
+  const used=new Set();rules.forEach(r=>{r.refsFrom.forEach(x=>used.add(x));r.refsTo.forEach(x=>used.add(x))});
+  const userAliases=namedAliases.filter(n=>AL[n].prop!=='4'&&!ifaceAliasNames.has(n));
+  const unused=userAliases.filter(n=>!used.has(n)).sort((a,b)=>a.localeCompare(b));
+
+  const fbIPs=new Set();
+  Object.values(IF).forEach(f=>{const n=ip2n(f.ip);if(n&&f.ip!=='0.0.0.0')fbIPs.add(n)});
+  return {raw:R,rules,Z,zoneOrder,zonesOfLeaf,aliasLeaves,ipName,namedAliases,userAliases,unused,IF,AL,fqdnIPs,fbIPs,
+    counts:{policies:rules.length,enabled:rules.filter(r=>r.enabled).length,aliases:userAliases.length,
+      addrGroups:Object.keys(AG).length,services:Object.keys(SV).length,unused:unused.length}};
+}
+
+/* ---------- rendering: shared ---------- */
+function chipHTML(c){return `<span class="chip ${c.kind}" title="${esc(c.title||c.label)}">${esc(c.label)}</span>`}
+function chipsHTML(list,max=4){if(!list.length)return '<span class="more">–</span>';const s=list.slice(0,max).map(chipHTML).join('');return s+(list.length>max?`<span class="more">+${list.length-max} more</span>`:'')}
+function actionBadge(r){const m={Allow:'b-green',Proxy:'b-violet',Block:'b-red'};return `<span class="badge ${m[r.action]||'b-grey'}">${esc(r.action)}</span>`}
+function enBadge(r){return r.enabled?'':'<span class="badge b-grey">Disabled</span>'}
+function zoneLabel(id){return D.Z[id]?D.Z[id].label:id}
+function zoneColor(kind){return {broad:'var(--amber)',identity:'var(--violet)',vpn:'var(--violet)',Trusted:'var(--green)',Optional:'var(--accent)',Custom:'var(--grey)',External:'var(--red)',external:'var(--red)',internal:'var(--grey)',firebox:'var(--ink)'}[kind]||'var(--grey)'}
+
+/* ---------- policy usage (WatchGuard Cloud › Reports › Policy Usage CSV) ---------- */
+// Link to a Firebox's Policy Usage report in WatchGuard Cloud. The cloud device ID isn't in the XML export, so there is no
+// built-in device: the button opens WatchGuard Cloud until a Policy Usage address is saved on the Clean-up tab (this browser only).
+const WGC_DEFAULT='https://cloud.watchguard.com/';
+function wgcUrl(){const v=store.get('fwmap.wgcUrl');return v&&/^https:\/\/[a-z0-9.-]*cloud\.watchguard\.com\//i.test(v)?v:WGC_DEFAULT}
+function setWgcLinks(){document.querySelectorAll('.wgclink').forEach(a=>a.href=wgcUrl())}
+function usageHelpHTML(){
+  return `<div class="card sec" style="grid-column:1/-1"><h3>Add policy usage <span class="badge b-grey">Optional</span></h3>
+    <p>See which policies are actually used, which carry the most traffic and which carried nothing.</p>
+    <ol class="steps"><li>Open <a class="linkish wgclink" target="_blank" rel="noopener noreferrer" href="${esc(wgcUrl())}">Policy Usage in WatchGuard Cloud ↗</a> and sign in.</li>
+    <li>Set the time range. Use <b>Last 30 days</b> before deciding to remove anything.</li><li>Export the report as <b>CSV</b>. Keep the file name, because it holds the dates.</li><li>Click <b>Load usage CSV</b> (top right), or drop the file on this page.</li></ol>
+    <details class="wgcset"${store.get('fwmap.wgcUrl')?'':' open'}><summary class="more">${store.get('fwmap.wgcUrl')?'Change the saved Policy Usage link':'Save your Firebox’s Policy Usage link'}</summary><p class="more" style="margin:6px 0">In WatchGuard Cloud, open Reports › Policy Usage for your Firebox and paste the page address here (it looks like https://<i>region</i>.cloud.watchguard.com/reports/fb/device/<i>device-id</i>/policy_usage). It's saved in this browser only; after that the links open that report directly.</p>
+    <div class="toolbar" style="margin:0"><input type="text" id="wgcin" value="${esc(wgcUrl())}" style="flex:1;min-width:0"><button class="btn" id="wgcsave">Save link</button><button class="btn" id="wgcreset">Reset</button></div><p class="more" id="wgcmsg" style="margin:4px 0 0"></p></details></div>`;
+}
+let U=null,pendingCSV=null;
+function parseCSV(text){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===','){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+    else f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.length>1||r[0]!=='');
+}
+function parseWindow(fileName){
+  const m=String(fileName).match(/(\d{4}-\d{2}-\d{2})T(\d{2})_(\d{2})_to_(\d{4}-\d{2}-\d{2})T(\d{2})_(\d{2})/);
+  if(!m)return {label:'time window not in the file name',days:1,known:false};
+  const a=new Date(`${m[1]}T${m[2]}:${m[3]}:00`),b=new Date(`${m[4]}T${m[5]}:${m[6]}:59`);
+  const days=Math.max(1,Math.round((b-a)/86400000));
+  const f=d=>d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
+  return {from:a,to:b,days,known:true,label:(days===1?f(a):f(a)+' – '+f(b))+` (${days} day${days===1?'':'s'})`};
+}
+function fmtNum(n){n=+n||0;if(n>=1e9)return (n/1e9).toFixed(n>=1e10?0:1)+'bn';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+'M';if(n>=1e3)return (n/1e3).toFixed(n>=1e4?0:1)+'K';return String(Math.round(n))}
+function fmtBytes(b){b=+b||0;const u=['B','KB','MB','GB','TB','PB'];let i=0;while(b>=1000&&i<5){b/=1000;i++}return (i===0||b>=100?Math.round(b):b.toFixed(1))+' '+u[i]}
+function fmtBytesShort(b){return fmtBytes(b).replace(' ','').replace(/B$/,'').replace(/^(\d+)$/,'$1B')}
+function isTemp(r){return /\btemp|test|\bpoc\b|poc_|trial/i.test(r.name)||r.tags.some(t=>/test|review/i.test(t))}
+function loadUsageText(text,fileName){
+  const rows=parseCSV(String(text).replace(/^﻿/,''));
+  if(!rows.length)throw new Error('The file is empty.');
+  const hdr=rows.shift().map(h=>h.trim().toLowerCase());
+  const ix=n=>hdr.indexOf(n);
+  if(ix('name')<0||ix('hits')<0||ix('bytes')<0)throw new Error('Expected the columns name, bytes, hits and status.');
+  const byName=new Map();
+  D.rules.forEach(r=>{(r.pnames||[]).forEach(n=>byName.set(n,r));if(!byName.has(r.name+'-00'))byName.set(r.name+'-00',r)});
+  const byRule=new Map(),unmatched=[];let stamp='';
+  for(const c of rows){
+    const name=(c[ix('name')]||'').trim();if(!name)continue;
+    const hits=+c[ix('hits')]||0,bytes=+c[ix('bytes')]||0,st=ix('status')>=0?(c[ix('status')]||''):'';
+    const m=st.match(/before (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) UTC/);if(m)stamp=new Date(m[1]+'T'+m[2]+'Z');
+    const r=byName.get(name)||byName.get(name.replace(/-\d+$/,''));
+    if(!r){unmatched.push({name,hits,bytes});continue}
+    const u=byRule.get(r.i)||{hits:0,bytes:0};u.hits+=hits;u.bytes+=bytes;byRule.set(r.i,u);
+  }
+  if(!byRule.size)throw new Error('None of the policy names in this file match the loaded export. Is it from the same Firebox?');
+  U={raw:text,file:fileName,win:parseWindow(fileName),stamp,unmatched};
+  computeUsage();
+}
+function computeUsage(){
+  const days=U.win.days||1;
+  const m=new Map();
+  // re-read from raw (keeps one code path when the XML is reloaded)
+  const rows=parseCSV(String(U.raw).replace(/^﻿/,''));const hdr=rows.shift().map(h=>h.trim().toLowerCase());const ix=n=>hdr.indexOf(n);
+  const byName=new Map();D.rules.forEach(r=>{(r.pnames||[]).forEach(n=>byName.set(n,r));if(!byName.has(r.name+'-00'))byName.set(r.name+'-00',r)});
+  for(const c of rows){const name=(c[ix('name')]||'').trim();const r=byName.get(name)||byName.get(name.replace(/-\d+$/,''));if(!r)continue;
+    const u=m.get(r)||{hits:0,bytes:0};u.hits+=+c[ix('hits')]||0;u.bytes+=+c[ix('bytes')]||0;m.set(r,u)}
+  D.rules.forEach(r=>{const u=m.get(r);r.u=u?{hits:u.hits,bytes:u.bytes}:{hits:0,bytes:0,none:true}});
+  const en=D.rules.filter(r=>r.enabled&&!r.u.none);
+  const used=en.filter(r=>r.u.hits>0);
+  const byHits=[...used].sort((a,b)=>b.u.hits-a.u.hits),byBytes=[...used].sort((a,b)=>b.u.bytes-a.u.bytes);
+  const top=Math.max(1,Math.ceil(used.length*0.1));
+  const hitCut=byHits[top-1]?byHits[top-1].u.hits:Infinity,byteCut=byBytes[top-1]?byBytes[top-1].u.bytes:Infinity;
+  byHits.forEach((r,k)=>r.u.rank=k+1);
+  for(const r of D.rules){const u=r.u;
+    u.heavy=u.hits>0&&u.bytes>=1e9&&u.bytes/u.hits>=5e6;
+    r.uv=!r.enabled?'disabled':u.none?'nodata':u.hits===0?'idle':(u.hits/days<10?'rare':(u.hits>=hitCut||u.bytes>=byteCut?'busy':'normal'));
+  }
+  const tH=used.reduce((s,r)=>s+r.u.hits,0),tB=used.reduce((s,r)=>s+r.u.bytes,0);
+  const cover=(arr,key,tot)=>{let s=0,k=0;for(const r of arr){s+=r.u[key];k++;if(s>=tot*0.8)break}return k};
+  Object.assign(U,{days,totalHits:tH,totalBytes:tB,used:used.length,enabled:en.length,idle:en.length-used.length,
+    hits80:cover(byHits,'hits',tH),bytes80:cover(byBytes,'bytes',tB),busiestHits:byHits[0],busiestBytes:byBytes[0],
+    maxHits:byHits[0]?byHits[0].u.hits:1,maxBytes:byBytes[0]?byBytes[0].u.bytes:1,missing:D.rules.filter(r=>r.u.none)});
+}
+const VERDICT={idle:['b-amber','No traffic','No hits at all in this window.'],rare:['b-grey','Rarely used','Fewer than 10 hits a day.'],busy:['b-accent','Busy','In the top 10% of policies by hits or by data.'],nodata:['b-grey','Not in usage file','The usage file has no row for this policy.']};
+function verdictBadge(r){if(!U||!r.u)return '';const v=VERDICT[r.uv];return (v?`<span class="badge ${v[0]}" title="${esc(v[2])}">${v[1]}</span>`:'')+(r.u.heavy?' <span class="badge b-violet" title="Few connections moving a lot of data (over 5 MB each, over 1 GB in total)">Heavy data</span>':'')}
+function usageInline(r){if(!U||!r.u||r.u.none)return '';if(!r.u.hits)return r.uv==='idle'?verdictBadge(r):'<span class="upill">no traffic</span>';return `<span class="upill" title="${esc(r.u.hits.toLocaleString('en-NZ'))} hits · ${esc(fmtBytes(r.u.bytes))} in ${esc(U.win.label)}">${r.u.hits?esc(fmtNum(r.u.hits))+' hits · '+esc(fmtBytes(r.u.bytes)):'no traffic'}</span>${r.uv==='idle'||r.uv==='busy'||r.u.heavy?' '+verdictBadge(r):''}`}
+function logPct(v,max){return v>0?Math.max(3,Math.round(100*Math.log10(1+v)/Math.log10(1+max))):0}
+function usageCells(r){
+  if(!r.u||r.u.none)return '<td class="uc more">–</td><td class="uc more">–</td>';
+  return `<td class="uc" title="${esc(r.u.hits.toLocaleString('en-NZ'))} hits">${r.u.hits?esc(fmtNum(r.u.hits)):'<span class="more">0</span>'}<div class="ubar"><i style="width:${logPct(r.u.hits,U.maxHits)}%"></i></div></td><td class="uc" title="${esc(r.u.bytes.toLocaleString('en-NZ'))} bytes">${r.u.bytes?esc(fmtBytes(r.u.bytes)):'<span class="more">0</span>'}<div class="ubar"><i style="width:${logPct(r.u.bytes,U.maxBytes)}%;background:var(--violet)"></i></div></td>`;
+}
+function usageKV(r){
+  if(!U||!r.u)return '';
+  if(r.u.none)return `<dt>Traffic</dt><dd>${verdictBadge(r)}</dd>`;
+  const v=VERDICT[r.uv];
+  return `<dt>Traffic</dt><dd>${verdictBadge(r)} <b>${esc(r.u.hits.toLocaleString('en-NZ'))}</b> hits · <b>${esc(fmtBytes(r.u.bytes))}</b> <span class="more">in ${esc(U.win.label)}</span></dd>
+  ${r.u.hits?`<dt>Share</dt><dd>${(100*r.u.hits/U.totalHits).toFixed(1)}% of all hits · ${(100*r.u.bytes/Math.max(1,U.totalBytes)).toFixed(1)}% of all data${r.u.rank?' · #'+r.u.rank+' of '+U.used+' by hits':''}</dd><dt>Per hit</dt><dd>${esc(fmtBytes(r.u.bytes/r.u.hits))} on average</dd>`:''}
+  ${v?`<dt>Meaning</dt><dd>${esc(v[2])}${r.uv==='idle'&&U.days<30?' A short window can miss weekly or monthly jobs, so check a 30-day file before removing it.':''}</dd>`:''}`;
+}
+function renderMeta(){
+  const m=D.raw.metaInfo;
+  $('#meta').title=`Fireware ${m.version||'?'} · ${D.counts.policies} policies, ${D.counts.aliases} named aliases, ${D.counts.addrGroups} address groups, ${D.counts.services} services · ${m.autoOrder?'automatic':'manual'} policy order`;
+  $('#meta').innerHTML=`<b>${esc(m.file)}</b> <span class="more">· ${D.counts.policies} policies</span>`+
+    (U?` <span class="badge b-accent" title="${esc(U.file)}">Usage: ${esc(U.win.label)}</span>`:'');
+}
+function banner(html,kind){const b=$('#banner');if(!html){b.classList.add('hidden');return}b.className=kind==='err'?'err':'note';b.innerHTML=html+' <a class="linkish" id="bclose">Dismiss</a>';$('#bclose').onclick=()=>banner('')}
+function applyUsage(text,name){
+  loadUsageText(text,name);
+  refreshAll();
+  const shortNote=U.days<7?` This file covers only ${U.days} day${U.days===1?'':'s'}, so “no traffic” is a hint, not proof.`:'';
+  banner(`Loaded usage for ${esc(U.win.label)}: ${esc(fmtNum(U.totalHits))} hits and ${esc(fmtBytes(U.totalBytes))} across ${U.used} policies; ${U.idle} enabled policies had no traffic.${esc(shortNote)}`,'note');
+}
+function refreshAll(){
+  setTimeout(setWgcLinks,0);
+  analyse();$('#rchg').classList.toggle('hidden',!CMP.xml);renderExposure();renderPathResult();renderChanges();
+  document.body.classList.toggle('has-usage',!!U);
+  renderMeta();renderTiles();renderMatrix();renderRules();renderCleanup();
+  if(sel.length)lookup();
+  if(W3.built)applyWebWeights();
+}
+function usageCleanupHTML(part){
+  const R=D.rules,en=R.filter(r=>r.enabled&&r.u&&!r.u.none);
+  const sec=(title,badge,why,list,extra)=>`<div class="card sec"><h3>${esc(title)} <span class="badge ${badge}">${list.length}</span></h3><p>${esc(why)}</p>${list.length?ruleListHTML(list,extra):'<p class="more">None.</p>'}</div>`;
+  const anyRule=r=>r.anyPort||r.fromLeaves.some(l=>l.k==='any')||r.toLeaves.some(l=>l.k==='any');
+  const idle=en.filter(r=>r.u.hits===0&&!/^Unhandled /i.test(r.name));
+  const broadBusy=en.filter(r=>r.u.hits>0&&r.action!=='Block'&&anyRule(r)).sort((a,b)=>b.u.hits-a.u.hits);
+  const tempUsed=en.filter(r=>r.u.hits>0&&isTemp(r)).sort((a,b)=>b.u.hits-a.u.hits);
+  const heavy=en.filter(r=>r.u.heavy).sort((a,b)=>b.u.bytes-a.u.bytes);
+  const deny=R.filter(r=>/^Unhandled (Internal|External) Packet/i.test(r.name)&&r.u&&!r.u.none);
+  const ua=new Set(D.userAliases),refRules=new Map();
+  for(const r of R){if(!r.enabled)continue;for(const a of new Set([...r.refsFrom,...r.refsTo])){if(!ua.has(a))continue;if(!refRules.has(a))refRules.set(a,[]);refRules.get(a).push(r)}}
+  const idleObj=[...refRules].filter(([a,rs])=>rs.every(r=>r.u&&r.u.hits===0&&!r.u.none)).sort((x,y)=>x[0].localeCompare(y[0]));
+  const pctH=U.totalHits?Math.round(100*U.hits80/Math.max(1,U.used)):0;
+  const sum=`<div class="card sec" style="grid-column:1/-1"><h3>Policy usage <span class="badge b-accent">${esc(U.win.label)}</span></h3>
+    <p>${U.stamp?'Exported '+esc(U.stamp.toLocaleString('en-NZ'))+'. ':''}${esc(fmtNum(U.totalHits))} hits and ${esc(fmtBytes(U.totalBytes))} went through ${U.used} of ${U.enabled} enabled policies.</p>
+    <div class="tiles" style="margin:8px 0 6px">
+      <div class="tile"><b>${U.used}</b><span>Policies with traffic</span></div>
+      <div class="tile"><b>${U.idle}</b><span>Enabled, no traffic</span></div>
+      <div class="tile"><b>${U.hits80}</b><span>Policies carrying 80% of hits</span></div>
+      <div class="tile"><b>${U.bytes80}</b><span>Policies carrying 80% of data</span></div>
+      <div class="tile"><b>${esc(fmtNum(U.totalHits))}</b><span>Hits</span></div>
+      <div class="tile"><b>${esc(fmtBytes(U.totalBytes))}</b><span>Data</span></div>
+    </div>
+    ${U.busiestHits?`<p>Busiest by hits: <a class="linkish" data-rule="${U.busiestHits.i}">${esc(U.busiestHits.name)}</a> (${(100*U.busiestHits.u.hits/U.totalHits).toFixed(0)}% of all hits). Busiest by data: <a class="linkish" data-rule="${U.busiestBytes.i}">${esc(U.busiestBytes.name)}</a> (${(100*U.busiestBytes.u.bytes/U.totalBytes).toFixed(0)}% of all data).</p>`:''}
+    ${U.days<30?`<p class="warnline">This file covers ${U.days} day${U.days===1?'':'s'}. Weekly or monthly jobs (backups, month-end, DR tests) may not appear, so confirm “no traffic” with a 30-day file before removing anything.</p>`:''}
+    ${U.unmatched.length?`<p>${U.unmatched.length} row${U.unmatched.length===1?'':'s'} in the file matched no policy in the export (usually hidden built-in policies): ${esc(U.unmatched.map(x=>x.name).join(', '))}.</p>`:''}
+    ${U.missing.length?`<p>${U.missing.length} polic${U.missing.length===1?'y':'ies'} in the export had no row in the file.</p>`:''}</div>`;
+  const denyCard=deny.length?`<div class="card sec"><h3>Dropped because no policy matched <span class="badge b-red">${esc(fmtNum(deny.reduce((s,r)=>s+r.u.hits,0)))} hits</span></h3><p>Fireware's hidden default-deny policies. A high internal count usually means a device or application keeps trying something no policy allows. Traffic Monitor or the deny log will show what.</p>${ruleListHTML(deny)}</div>`:'';
+  const objCard=`<div class="card sec"><h3>Objects used only by policies with no traffic <span class="badge b-amber">${idleObj.length}</span></h3><p>Every enabled policy that uses these named aliases had no traffic. If those policies go, these can go too.</p>${idleObj.length?'<ul class="list">'+idleObj.map(([a,rs])=>`<li><a data-look="${esc(a)}">${esc(a)}</a><span class="more">used by ${rs.length} polic${rs.length===1?'y':'ies'}: ${esc(rs.slice(0,3).map(r=>r.name).join(', '))}${rs.length>3?' …':''}</span></li>`).join('')+'</ul>':'<p class="more">None.</p>'}</div>`;
+  if(part==='summary')return sum;
+  if(part==='medium')return sec('Enabled policies with no traffic','b-amber','Candidates to disable and then remove. Disabling first is easy to undo if something breaks.',idle)+
+    sec('Broad policies carrying traffic','b-red','Any-to/from or any-port policies that are actually in use. Tightening these needs care: find out who relies on them first (Object lookup and Traffic Monitor help).',broadBusy)+
+    sec('Temporary or test policies still in use','b-amber','Named temporary or test, but traffic depends on them. Either make them permanent properly (clear name, tight scope) or plan their removal.',tempUsed);
+  return sec('Heavy data, few connections','b-violet','A small number of connections moving a lot of data: backups, replication, video. Candidates for scheduling or traffic management.',heavy,r=>`<span class="more">${esc(fmtBytes(r.u.bytes/r.u.hits))} per hit</span>`)+
+    denyCard+objCard;
+}
+
+/* ---------- view level: Simple / Medium / Advanced ---------- */
+const LV={simple:0,medium:1,advanced:2};
+let LEVEL=(()=>{const v=store.get('fwmap.level');return LV[v]!=null?v:'simple'})();
+document.body.dataset.level=LEVEL;
+function lv(min){return LV[LEVEL]>=LV[min]}
+function setLevel(l){
+  if(!LV.hasOwnProperty(l))return;LEVEL=l;store.set('fwmap.level',l);document.body.dataset.level=l;
+  document.querySelectorAll('#lvl button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===l)));
+  if(D)refreshLevel();
+}
+function refreshLevel(){
+  if(sel.length>maxSel())sel=sel.slice(0,maxSel());
+  renderTiles();renderExposure();renderMatrix();renderRules();lookup();renderPathResult();renderCleanup();renderChanges();
+  if(W3.built){W3.built=false;if(!$('#v-web').classList.contains('hidden')){buildWeb()}}
+  if(drawerStack.length)paintDrawer();
+}
+function maxSel(){return lv('medium')?8:1}
+
+/* ---------- analysis: runs after every load ---------- */
+function analyse(){
+  if(!D)return;
+  D.rules.forEach(r=>{r.pp=parsePorts(r)});
+  computeShadow();computeRisk();computeExposure();computeHygiene();
+  if(CMP.xml)diffExports();if(CMP.usage)mapOldUsage();
+}
+
+/* ports: "tcp/443", "udp/137-138", "tcp/any", "any", "icmp type 8" */
+function parsePorts(r){
+  return r.ports.map(s=>{let m;
+    if(s==='any')return {p:'any'};
+    if((m=s.match(/^(tcp|udp)\/any$/)))return {p:m[1],lo:0,hi:65535};
+    if((m=s.match(/^(tcp|udp)\/(\d+)(?:-(\d+))?$/)))return {p:m[1],lo:+m[2],hi:+(m[3]||m[2])};
+    if(/^icmp(?!v6)/.test(s))return {p:'icmp'};
+    return {p:s.split(/[\s/]/)[0]};
+  });
+}
+function svcMatch(r,proto,port){
+  if(!proto)return true;
+  return r.pp.some(e=>e.p==='any'||(e.p===proto&&(e.lo==null||port==null||(port>=e.lo&&port<=e.hi))));
+}
+/* does an IP fall inside one side of a policy? 'yes' | 'maybe' | null */
+function epMatch(leaves,n,side){
+  let best=null;
+  const myZ=D.zonesOfLeaf({k:'host',lo:n,hi:n}),z0=D.Z[myZ[0]];
+  for(const l of leaves){
+    if(l.lo!=null&&l.k!=='any'){if(n>=l.lo&&n<=l.hi)return 'yes';continue}
+    if(l.k==='any')return 'yes';
+    if(l.k==='iface'){
+      if(l.t==='Firebox'){if(D.fbIPs.has(n))return 'yes';continue}
+      const zs=D.zonesOfLeaf(l);
+      if(zs.includes('Any'))return 'yes';
+      if(zs.some(z=>myZ.includes(z)))return 'yes';
+      if(zs.includes('Any-Trusted')&&z0&&z0.kind==='Trusted')return 'yes';
+      if(zs.includes('Any-Optional')&&z0&&z0.kind==='Optional')return 'yes';
+      if((zs.includes('Mobile VPN')||zs.includes('Branch VPN'))&&myZ[0]==='Other internal')best='maybe';
+      continue;
+    }
+    if(l.k==='fqdn'){const ips=D.fqdnIPs(l.t);if(ips&&ips.some(i=>n>=i.lo&&n<=i.hi))return 'yes';continue}
+    if(l.k==='user'){if(side!=='to'&&isPrivate(n))best='maybe';continue}
+    if(l.k==='dyn'&&!isPrivate(n))best='maybe';
+  }
+  return best;
+}
+/* turn what the user typed into an IP to test with */
+function resolveEndpoint(t){
+  t=String(t||'').trim();if(!t)return {err:'empty'};
+  const n=ip2n(t);if(n!=null)return {n,ip:t,label:D.ipName[t]?D.ipName[t]+' ('+t+')':t};
+  const key=Object.keys(D.AL).find(a=>a.toLowerCase()===t.toLowerCase());
+  let leaves=key?D.aliasLeaves(key):null;
+  if(!leaves||!leaves.some(l=>l.lo!=null)){const f=D.fqdnIPs(t);if(f)leaves=f}
+  if(!leaves)return {err:`“${t}” isn't an IP address or a known host or alias.`};
+  const host=leaves.find(l=>l.k==='host');
+  if(host)return {n:host.lo,ip:host.t,label:(key||t)+' ('+host.t+')',note:leaves.filter(l=>l.lo!=null).length>1?`${key||t} has several addresses; tested with ${host.t}.`:''};
+  const rng=leaves.find(l=>l.lo!=null&&l.k!=='any');
+  if(rng){const ip=n2ip(rng.lo+1);return {n:rng.lo+1,ip,label:(key||t)+' ('+ip+')',note:`${key||t} is a whole range; tested with ${ip} as an example address.`}}
+  const ifc=leaves.find(l=>l.k==='iface');
+  if(ifc&&D.Z['if:'+ifc.t]&&D.Z['if:'+ifc.t].lo!=null){const ip=n2ip(D.Z['if:'+ifc.t].lo+50);return {n:ip2n(ip),ip,label:ifc.t+' ('+ip+')',note:`${ifc.t} is a whole VLAN; tested with ${ip} as an example address.`}}
+  return {err:`“${t}” has no IP address the page can test with (it may be a user group or a name with no IP).`};
+}
+function parsePortInput(t,protoSel){
+  t=String(t||'').trim().toLowerCase();if(!t)return {proto:null,port:null};
+  if(t==='tcp'||t==='udp'||t==='any')return {proto:null,port:null};
+  let m;
+  if(t==='icmp'||t==='ping')return {proto:'icmp',port:null};
+  if((m=t.match(/^(tcp|udp)[\/\s:]?(\d+)$/)))return {proto:m[1],port:+m[2]};
+  if((m=t.match(/^(\d+)$/)))return {proto:protoSel||'tcp',port:+m[1]};
+  const named={https:443,http:80,rdp:3389,ssh:22,smb:445,sql:1433,dns:53,ftp:21,smtp:25,ldap:389,ldaps:636,ntp:123};
+  if(named[t])return {proto:(t==='dns'||t==='ntp')?'udp':'tcp',port:named[t]};
+  return {err:`“${t}” isn't a port. Use a number like 443, or tcp/443, udp/53 or icmp.`};
+}
+let PT=null; // last path test
+function pathTest(srcT,dstT,portT,protoSel){
+  const s=resolveEndpoint(srcT),d=resolveEndpoint(dstT),p=parsePortInput(portT,protoSel);
+  if(s.err||d.err||p.err)return {err:[s.err&&s.err!=='empty'?'From: '+s.err:'',s.err==='empty'?'Enter where the traffic starts.':'',d.err&&d.err!=='empty'?'To: '+d.err:'',d.err==='empty'?'Enter where the traffic goes.':'',p.err||''].filter(Boolean).join(' ')};
+  const res={s,d,p,matches:[],maybes:[],near:[],first:null};
+  for(const r of D.rules){
+    if(!r.enabled)continue;
+    const ms=epMatch(r.fromLeaves,s.n,'from'),md=epMatch(r.toLeaves,d.n,'to'),mp=svcMatch(r,p.proto,p.port);
+    if(ms&&md&&mp){
+      if(!p.proto&&/^Unhandled /i.test(r.name))continue;
+      if(ms==='yes'&&md==='yes'){res.matches.push(r);if(!res.first&&p.proto)res.first=r}
+      else if(!res.first&&(ms==='yes'||md==='yes'))res.maybes.push({r,why:[ms==='maybe'?'source':'',md==='maybe'?'destination':''].filter(Boolean)});
+    }else if(p.proto&&!res.first&&r.action!=='Block'&&!/^Unhandled /i.test(r.name)){
+      const hit=[ms==='yes',md==='yes',mp].filter(Boolean).length;
+      if(hit===2)res.near.push({r,miss:!ms?'source':!md?'destination':'port'});
+    }
+  }
+  return res;
+}
+function renderPathResult(){
+  const o=$('#pt-out');if(!o)return;
+  if(!PT){o.innerHTML='';return}
+  if(PT.err){o.innerHTML=`<div class="err" style="margin-top:8px">${esc(PT.err)}</div>`;return}
+  const {s,d,p}=PT,portTxt=p.proto?(p.proto+(p.port!=null?'/'+p.port:'')):'any service';
+  const notes=[s.note,d.note].filter(Boolean).map(x=>`<p class="more" style="margin:4px 0">${esc(x)}</p>`).join('');
+  let verdict,body='';
+  const ruleLine=r=>`<a data-rule="${r.i}">${esc(r.name)}</a> <span class="more">#${r.i} · ${esc(r.ports.slice(0,4).join(', '))}${r.ports.length>4?' …':''}</span> ${usageInline(r)}`;
+  if(p.proto){
+    const f=PT.first;
+    if(!f||/^Unhandled /i.test(f.name)){verdict=`<span class="verdict v-no">Not allowed</span> <span>No policy allows ${esc(portTxt)} from ${esc(s.label)} to ${esc(d.label)}, so the Firebox drops it.</span>`}
+    else if(f.action==='Block'){verdict=`<span class="verdict v-no">Blocked</span> <span>by ${ruleLine(f)}</span>`}
+    else verdict=`<span class="verdict v-yes">${f.action==='Proxy'?'Allowed through a proxy':'Allowed'}</span> <span>by ${ruleLine(f)}</span>`;
+    if(PT.maybes.length&&lv('medium'))body+=`<p class="more" style="margin:8px 0 2px">Checked first and could match instead, depending on who is logged in or VPN addresses:</p><ul class="list">${PT.maybes.slice(0,6).map(x=>`<li>${actionBadge(x.r)}${ruleLine(x.r)}<span class="badge b-amber">depends on ${esc(x.why.join(' and '))}</span></li>`).join('')}</ul>`;
+    const later=PT.matches.filter(r=>r!==f&&!/^Unhandled /i.test(r.name));
+    if(later.length&&lv('medium'))body+=`<p class="more" style="margin:8px 0 2px">Also match further down, but are never reached for this traffic (${later.length}):</p>${ruleListHTML(later.slice(0,8))}`;
+    if(PT.near.length&&lv('advanced'))body+=`<p class="more" style="margin:8px 0 2px">Near misses: policies above the decision that match two of the three parts.</p><ul class="list">${PT.near.slice(0,10).map(x=>`<li>${actionBadge(x.r)}${ruleLine(x.r)}<span class="badge b-grey">wrong ${esc(x.miss)}</span></li>`).join('')}</ul>`;
+  }else{
+    const allow=PT.matches.filter(r=>r.action!=='Block');
+    if(!allow.length&&!PT.maybes.length)verdict=`<span class="verdict v-no">Nothing allowed</span> <span>No policy lets ${esc(s.label)} reach ${esc(d.label)} on any port.</span>`;
+    else{
+      const svcs=[...new Set(allow.flatMap(r=>r.ports))];
+      verdict=`<span class="verdict v-yes">Some traffic allowed</span> <span>${esc(s.label)} can reach ${esc(d.label)} on: <span class="mono">${esc(svcs.slice(0,12).join(', '))}${svcs.length>12?' …':''}</span></span>`;
+      body+=`<p class="more" style="margin:8px 0 2px">Policies that allow it, in the order the Firebox checks them. Add a port above to see which one decides.</p>${ruleListHTML(allow.slice(0,lv('medium')?40:6))}`;
+      if(PT.maybes.length&&lv('medium'))body+=`<p class="more" style="margin:8px 0 2px">Depending on who is logged in:</p>${ruleListHTML(PT.maybes.map(x=>x.r).slice(0,8))}`;
+    }
+  }
+  o.innerHTML=`<div class="pt-res"><div class="pt-v">${verdict}</div>${notes}${body}</div>`;
+}
+
+/* ---------- policies hidden behind an earlier one (manual order) ---------- */
+function leafCovers(a,b){
+  if(a.k==='any')return true;
+  if(b.k==='fqdn'&&a.k!=='fqdn'){const ips=D.fqdnIPs(b.t);return !!ips&&ips.every(i=>leafCovers(a,i))}
+  if(b.k==='any')return false;
+  if(a.lo!=null&&b.lo!=null)return a.lo<=b.lo&&b.hi<=a.hi;
+  if(a.k==='iface'){
+    const za=D.zonesOfLeaf(a);
+    if(za.includes('Any'))return true;
+    const zb=b.lo!=null?D.zonesOfLeaf(b):b.k==='iface'?D.zonesOfLeaf(b):null;
+    if(!zb)return false;
+    return zb.every(z=>za.includes(z)||(za.includes('Any-Trusted')&&D.Z[z]&&D.Z[z].kind==='Trusted')||(za.includes('Any-Optional')&&D.Z[z]&&D.Z[z].kind==='Optional'));
+  }
+  if(a.k==='fqdn'&&b.k==='fqdn')return a.t.toLowerCase()===b.t.toLowerCase();
+  if(a.k==='user'&&b.k==='user')return a.t===b.t;
+  if(a.k==='dyn'&&b.k==='dyn')return a.t===b.t;
+  return false;
+}
+const sideCovers=(A,B)=>B.length>0&&B.every(b=>A.some(a=>leafCovers(a,b)));
+function portsCover(A,B){return B.pp.every(pb=>A.pp.some(pa=>pa.p==='any'||(pa.p===pb.p&&(pa.lo==null||(pb.lo!=null&&pa.lo<=pb.lo&&pb.hi<=pa.hi)))))}
+function computeShadow(){
+  const en=D.rules.filter(r=>r.enabled);
+  for(const r of D.rules)r.shadow=null;
+  en.forEach((b,ix)=>{
+    if(/^Unhandled /i.test(b.name))return;
+    for(let k=0;k<ix;k++){const a=en[k];
+      if(/^Unhandled /i.test(a.name)||(a.sched&&a.sched!=='Always On'))continue;
+      if(sideCovers(a.fromLeaves,b.fromLeaves)&&sideCovers(a.toLeaves,b.toLeaves)&&portsCover(a,b)){
+        b.shadow={by:a,same:a.action===b.action||(a.action!=='Block'&&b.action!=='Block')};break;
+      }
+    }
+  });
+}
+
+/* ---------- risk score ---------- */
+const MGMT_PORTS=new Set([22,23,80,443,4105,4117,4118,8080,3389]);
+/* where on the internet a policy's source can be: 'any' (whole internet), 'specific' (named public addresses) or null */
+function internetScope(r){
+  let sc=null;
+  for(const l of r.fromLeaves){
+    if(l.k==='any')return 'any';
+    if(l.k==='iface'){if(D.zonesOfLeaf(l).some(z=>z==='External'||z==='Any'))return 'any';continue}
+    if(l.lo!=null&&D.zonesOfLeaf(l).includes('External')){if(l.hi-l.lo>=65535)return 'any';sc='specific';continue}
+    if((l.k==='fqdn'||l.k==='dyn')&&D.zonesOfLeaf(l).includes('External'))sc='specific';
+  }
+  return sc;
+}
+function computeRisk(){
+  const wide=ls=>ls.some(l=>l.k==='any'||(l.k==='iface'&&l.t!=='Firebox')||(l.lo!=null&&l.hi-l.lo>=255));
+  for(const r of D.rules){
+    const reasons=[];let score=0;const add=(n,t)=>{score+=n;reasons.push(t)};
+    if(!r.enabled||r.action==='Block'||/^Unhandled /i.test(r.name)){r.risk={score:0,level:'none',reasons};continue}
+    const scope=internetScope(r);
+    const internalTo=[...r.toZones].some(z=>z!=='External'&&z!=='Any');
+    const inbound=!!scope&&internalTo;r.inScope=inbound?scope:null;
+    if(inbound)scope==='any'?add(30,'Reachable from the whole internet'):add(10,'Reachable from specific internet addresses');
+    const mgmt=r.toZones.has('Firebox')&&r.pp.some(e=>e.p==='any'||(e.lo!=null&&[...MGMT_PORTS].some(x=>x>=e.lo&&x<=e.hi)));
+    if(inbound&&mgmt)scope==='any'?add(20,'Firebox management ports open to the whole internet'):add(5,'Firebox management allowed from specific internet addresses');
+    if(r.fromLeaves.some(l=>l.k==='any'))add(15,'Source is Any');
+    if(r.toLeaves.some(l=>l.k==='any'))add(10,'Destination is Any');
+    if(r.anyPort)add(20,'Allows every port');
+    if(wide(r.fromLeaves)&&wide(r.toLeaves))add(10,'Whole networks on both sides');
+    if(!r.log)add(10,'Logging is off');
+    if(inbound&&scope==='any'&&!r.ips)add(10,'IPS is off on an internet-facing policy');
+    if(isTemp(r))add(10,'Named temporary or test');
+    if(r.action==='Allow'&&r.toZones.has('External')&&![...r.fromZones].every(z=>z==='Firebox')&&r.pp.some(e=>e.p==='tcp'&&e.lo!=null&&((80>=e.lo&&80<=e.hi)||(443>=e.lo&&443<=e.hi))))add(5,'Web traffic out without a proxy');
+    if(U&&r.u&&!r.u.none&&r.u.hits===0)add(10,'Open but carried no traffic');
+    if(r.shadow)add(5,'Never reached: an earlier policy takes its traffic');
+    score=Math.min(100,score);
+    r.risk={score,level:score>=50?'high':score>=25?'medium':'low',reasons};
+  }
+}
+function riskBadge(r,withScore){
+  if(!r.risk||r.risk.level==='none')return '';
+  const m={high:['b-red','High'],medium:['b-amber','Medium'],low:['b-grey','Low']}[r.risk.level];
+  return `<span class="badge ${m[0]}" title="${esc(r.risk.reasons.join(' · '))}">${m[1]}${withScore?' '+r.risk.score:''}</span>`;
+}
+
+/* ---------- reachable from the internet ---------- */
+let EXPO=[];
+function computeExposure(){
+  const map=new Map();
+  for(const r of D.rules){
+    if(!r.enabled||r.action==='Block'||/^Unhandled /i.test(r.name))continue;
+    if(!r.inScope)continue;
+    for(const c of r.to){
+      const zs=[...new Set(c.leaves.flatMap(l=>D.zonesOfLeaf(l)))];
+      if(!zs.some(z=>z!=='External'&&z!=='Any'))continue;
+      const key=c.ref||c.label;
+      if(!map.has(key))map.set(key,{chip:c,zones:zs,rules:[]});
+      if(!map.get(key).rules.includes(r))map.get(key).rules.push(r);
+    }
+  }
+  EXPO=[...map.values()].map(e=>Object.assign(e,{ports:[...new Set(e.rules.flatMap(r=>r.ports))],hits:e.rules.reduce((s,r)=>s+(r.u?r.u.hits:0),0),risk:Math.max(...e.rules.map(r=>r.risk?r.risk.score:0)),fromAny:e.rules.some(r=>r.inScope==='any')}))
+    .sort((a,b)=>b.risk-a.risk||b.hits-a.hits);
+}
+function renderExposure(){
+  const el=$('#expo');if(!el)return;
+  if(!EXPO.length){el.innerHTML='';return}
+  const lim=lv('medium')?EXPO.length:6;
+  const rows=EXPO.slice(0,lim);
+  let h=`<div class="card sec"><h3>Reachable from the internet <span class="badge b-red">${EXPO.length}</span></h3><p>What a policy lets in from the internet, including NAT / port forwards and the Firebox itself. <b>From anywhere</b> means any internet address; <b>specific sources</b> means only named outside addresses (for example a support provider). Sorted by risk.</p>`;
+  if(lv('advanced')){
+    h+=`<div class="rt-wrap" style="max-height:none"><table class="rt"><thead><tr><th>Destination</th><th>Zone</th><th>Ports</th><th>Via policies</th><th class="uc">Hits</th><th>Risk</th><th>IPS / logging</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${chipHTML(e.chip)}${e.chip.title?`<div class="more">${esc(e.chip.title)}</div>`:''}</td><td class="more">${esc(e.zones.map(zoneLabel).join(', '))}</td><td class="mono">${esc(e.ports.slice(0,6).join(', '))}${e.ports.length>6?' …':''}</td><td>${e.rules.map(r=>`<a class="linkish" data-rule="${r.i}">${esc(r.name)}</a>`).join('<br>')}${e.fromAny?' <span class="badge b-red">from anywhere</span>':' <span class="badge b-grey">specific sources</span>'}</td><td class="uc">${U?esc(fmtNum(e.hits)):'–'}</td><td>${e.rules.map(r=>riskBadge(r,true)).join(' ')}</td><td class="more">${e.rules.map(r=>(r.ips?'IPS on':'<b style="color:var(--red)">IPS off</b>')+' · '+(r.log?'log on':'<b style="color:var(--amber)">log off</b>')).join('<br>')}</td></tr>`).join('')}</tbody></table></div>`;
+  }else{
+    h+=`<ul class="list">${rows.map(e=>`<li>${chipHTML(e.chip)}<span class="more mono">${esc(e.ports.slice(0,4).join(', '))}${e.ports.length>4?' …':''}</span>${U?`<span class="upill">${e.hits?esc(fmtNum(e.hits))+' hits':'no traffic'}</span>`:''}<span class="more">via ${e.rules.slice(0,2).map(r=>`<a class="linkish" data-rule="${r.i}">${esc(r.name)}</a>`).join(', ')}${e.rules.length>2?' +'+(e.rules.length-2):''}</span>${e.fromAny?'<span class="badge b-red" title="Any internet address can reach it">from anywhere</span>':'<span class="badge b-grey" title="Only named internet addresses can reach it">specific sources</span>'}</li>`).join('')}</ul>${EXPO.length>lim?`<p class="more">${EXPO.length-lim} more in Medium view.</p>`:''}`;
+  }
+  el.innerHTML=h+'</div>';
+}
+
+/* ---------- hygiene ---------- */
+let HY={};
+function computeHygiene(){
+  const en=D.rules.filter(r=>r.enabled&&!/^Unhandled /i.test(r.name));
+  const groups=new Map();
+  for(const a of D.userAliases){const lv2=D.aliasLeaves(a).map(l=>l.k+':'+l.t).sort().join('|');if(!lv2)continue;if(!groups.has(lv2))groups.set(lv2,[]);groups.get(lv2).push(a)}
+  HY={
+    logOff:en.filter(r=>!r.log&&r.action!=='Block'),
+    noDesc:en.filter(r=>!r.desc||/^Policy added on /i.test(r.desc)),
+    inline:en.filter(r=>[...r.from,...r.to].some(c=>c.kind==='ip')),
+    naming:D.rules.filter(r=>/\*{2,}|\s{2,}|^\s|\s$|delete ?me|_delete|\bdelete\b|\bold\b|\bcopy\b|\.\d+$/i.test(r.name)),
+    dupAlias:[...groups.values()].filter(g=>g.length>1),
+    sched:en.filter(r=>r.sched&&r.sched!=='Always On'),
+    ipsOffInbound:en.filter(r=>r.risk&&r.risk.reasons.includes('IPS is off on an internet-facing policy'))
+  };
+}
+
+/* ---------- review list: decision, owner, note per policy (kept in this browser; export to keep) ---------- */
+let REV={};try{REV=JSON.parse(store.get('fwmap.review')||'{}')||{}}catch(e){REV={}}
+for(const k in REV)if(REV[k]&&REV[k].d==='keep')REV[k].d='accept';   // older saves used "Keep"
+const DEC={accept:['b-green','Accept'],tighten:['b-amber','Tighten'],disable:['b-violet','Disable'],remove:['b-red','Remove']};
+const todayISO=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+function addMonthsISO(iso,m){const d=iso?new Date(iso+'T00:00:00'):new Date();d.setMonth(d.getMonth()+m);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+function daysUntil(iso){if(!iso)return null;return Math.round((new Date(iso+'T00:00:00')-new Date(todayISO()+'T00:00:00'))/86400000)}
+function fmtDate(iso){if(!iso)return '–';const d=new Date(iso+'T00:00:00');return isNaN(d)?iso:d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})}
+function getRev(r){return REV[r.name]||null}
+function setRev(name,patch){
+  const cur=REV[name]||{};const nx=Object.assign({},cur,patch,{ts:new Date().toISOString()});
+  if(patch.d&&!cur.d&&!nx.rd)nx.rd=todayISO();                    // first decision: reviewed today
+  if(patch.d&&patch.d!==cur.d&&cur.d)nx.rd=todayISO();             // decision changed: re-reviewed today
+  if(patch.d==='accept'&&!nx.rr)nx.rr=addMonthsISO(nx.rd||todayISO(),12);   // accepted: re-review in a year unless set
+  if(!nx.d&&!nx.owner&&!nx.note&&!nx.rr)delete REV[name];else REV[name]=nx;
+  store.set('fwmap.review',JSON.stringify(REV));
+}
+/* review state: accepted (still in date), soon (re-review within 30 days), due (re-review date passed), or the decision */
+function revState(r){const v=getRev(r);if(!v)return null;const du=daysUntil(v.rr);
+  if(v.rr&&du<0)return 'due';if(v.d==='accept')return du!=null&&du<=30?'soon':'accepted';return v.d||'note'}
+function isAccepted(r){const s=revState(r);return s==='accepted'||s==='soon'}
+function decBadge(r){
+  const v=getRev(r);if(!v)return '';const st=revState(r);
+  const tip=esc([v.owner?'Owner: '+v.owner:'',v.rd?'Reviewed '+fmtDate(v.rd):'',v.rr?'Re-review by '+fmtDate(v.rr):'',v.note||''].filter(Boolean).join(' · '));
+  if(st==='due')return `<span class="badge b-red" title="${tip}">Re-review due</span>`;
+  if(st==='accepted')return `<span class="badge b-green" title="${tip}">Accepted</span>`;
+  if(st==='soon')return `<span class="badge b-amber" title="${tip}">Accepted · re-review soon</span>`;
+  if(DEC[v.d])return `<span class="badge ${DEC[v.d][0]}" title="${tip}">${DEC[v.d][1]}</span>`;
+  return `<span class="badge b-grey" title="${tip}">Note</span>`;
+}
+function reviewEditorHTML(r){
+  const v=getRev(r)||{};
+  return `<div class="rev" data-revname="${esc(r.name)}"><div class="seg" role="group" aria-label="Decision">${Object.entries(DEC).map(([k,m])=>`<button type="button" data-dec="${k}" aria-pressed="${v.d===k}"${k==='accept'?' title="Reviewed and accepted as it is (for example a business case). Hidden from Fix these first until the re-review date."':''}>${m[1]}</button>`).join('')}<button type="button" data-dec="" aria-pressed="false" title="Clear the decision">Clear</button></div>
+    <div class="toolbar" style="margin:8px 0 0"><input type="text" class="rev-owner" placeholder="Owner / accepted by, e.g. J. Smith" value="${esc(v.owner||'')}" style="min-width:0;flex:1"><input type="text" class="rev-note" placeholder="Note or business case, e.g. needed for DR site BGP" value="${esc(v.note||'')}" style="min-width:0;flex:2"></div>
+    <div class="toolbar revdates" style="margin:8px 0 0"><label>Reviewed on <input type="date" class="rev-rd" value="${esc(v.rd||'')}"></label><label>Re-review by <input type="date" class="rev-rr" value="${esc(v.rr||'')}"></label>
+      <span class="more">Set:</span><button type="button" class="btn small" data-rrq="3">+3 months</button><button type="button" class="btn small" data-rrq="6">+6 months</button><button type="button" class="btn small" data-rrq="12">+1 year</button></div>
+    <p class="more" style="margin:4px 0 0">${v.d==='accept'?'Accepted policies drop out of Fix these first and Needs attention until the re-review date. ':''}Saved in this browser${v.ts?' · last changed '+esc(new Date(v.ts).toLocaleString('en-NZ')):''}. Export the review list from the Clean-up tab to keep a copy.</p></div>`;
+}
+function csvCell(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function stamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`}
+function download(name,text){
+  const blob=new Blob(['﻿'+text],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function exportReview(all){
+  const fw=(D.raw.metaInfo.file||'firewall').replace(/\.xml$/i,'').replace(/[^\w.-]+/g,'_');
+  const cols=['Order','Policy','Action','Enabled','Decision','Review state','Owner','Note','Reviewed on','Re-review by','Risk','Risk score','Risk reasons','Hits','Data (bytes)','Usage window','From','To','Ports','Last changed'];
+  const rows=D.rules.filter(r=>all||getRev(r)).map(r=>{const v=getRev(r)||{};const st=revState(r);return [r.i,r.name,r.action,r.enabled?'Yes':'No',v.d&&DEC[v.d]?(v.d==='accept'?'Accepted':DEC[v.d][1]):'',st==='due'?'Re-review due':st==='soon'?'Accepted, re-review within 30 days':st==='accepted'?'Accepted':'',v.owner||'',v.note||'',v.rd||'',v.rr||'',r.risk&&r.risk.level!=='none'?r.risk.level:'',r.risk?r.risk.score:'',r.risk?r.risk.reasons.join('; '):'',U&&r.u&&!r.u.none?r.u.hits:'',U&&r.u&&!r.u.none?r.u.bytes:'',U?U.win.label:'',r.from.map(c=>c.label).join('; '),r.to.map(c=>c.label).join('; '),r.ports.join('; '),v.ts||'']});
+  download(`${all?'Firewall-Policies':'Firewall-Review'}-${fw}-${stamp()}.csv`,[cols,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n'));
+}
+function importReview(text){
+  const rows=parseCSV(String(text).replace(/^﻿/,''));const hdr=rows.shift().map(h=>h.trim().toLowerCase());
+  const ix=n=>hdr.indexOf(n);if(ix('policy')<0)throw new Error('Expected a Policy column (use a file exported from this page).');
+  const byLabel=Object.assign(Object.fromEntries(Object.entries(DEC).map(([k,m])=>[m[1].toLowerCase(),k])),{accepted:'accept',keep:'accept'});let n=0;
+  const iso=v=>{v=String(v||'').trim();if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v;const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:''};
+  for(const c of rows){const name=c[ix('policy')];if(!name)continue;const d=byLabel[(c[ix('decision')]||'').trim().toLowerCase()]||'';
+    const owner=ix('owner')>=0?c[ix('owner')]:'',note=ix('note')>=0?c[ix('note')]:'',rd=iso(ix('reviewed on')>=0?c[ix('reviewed on')]:''),rr=iso(ix('re-review by')>=0?c[ix('re-review by')]:'');
+    if(!d&&!owner&&!note&&!rr)continue;
+    REV[name]={d,owner,note,rd,rr,ts:(ix('last changed')>=0&&c[ix('last changed')])||(ix('reviewed at')>=0&&c[ix('reviewed at')])||new Date().toISOString()};n++}
+  store.set('fwmap.review',JSON.stringify(REV));return n;
+}
+function acceptedCardHTML(){
+  const rs=D.rules.filter(r=>{const v=getRev(r);return v&&(v.d==='accept'||v.rr)}).sort((a,b)=>(getRev(a).rr||'9999').localeCompare(getRev(b).rr||'9999'));
+  const due=rs.filter(r=>revState(r)==='due').length,soon=rs.filter(r=>revState(r)==='soon').length;
+  const stat=r=>{const st=revState(r),du=daysUntil(getRev(r).rr);return st==='due'?`<span class="badge b-red">Overdue ${-du} day${du===-1?'':'s'}</span>`:st==='soon'?`<span class="badge b-amber">Due in ${du} day${du===1?'':'s'}</span>`:getRev(r).rr?`<span class="badge b-green">OK</span>`:'<span class="badge b-grey">No date</span>'};
+  return `<div class="card sec" style="grid-column:1/-1"><h3>Accepted and re-reviews <span class="badge b-green">${rs.length}</span>${due?` <span class="badge b-red">${due} due</span>`:''}${soon?` <span class="badge b-amber">${soon} within 30 days</span>`:''}</h3>
+  <p>Policies reviewed and accepted as they are, with when they were reviewed and when to look again. Accepted policies are left out of Fix these first and Needs attention until their re-review date; then they come back marked Re-review due.</p>
+  ${rs.length?`<div class="rt-wrap" style="max-height:none"><table class="rt"><thead><tr><th>Policy</th><th>Risk</th><th>Owner</th><th>Reviewed</th><th>Re-review by</th><th>Status</th><th>Note / business case</th></tr></thead><tbody>${rs.map(r=>{const v=getRev(r);return `<tr class="r" data-rule="${r.i}"><td>${esc(r.name)} ${decBadge(r)}</td><td>${riskBadge(r,lv('advanced'))}</td><td>${esc(v.owner||'–')}</td><td>${esc(fmtDate(v.rd))}</td><td>${esc(fmtDate(v.rr))}</td><td>${stat(r)}</td><td class="more">${esc(v.note||'')}</td></tr>`}).join('')}</tbody></table></div>`:'<p class="more">Nothing accepted yet. Open a policy, choose <b>Accept</b>, add the owner and the business case, and set a re-review date.</p>'}</div>`;
+}
+function reviewCardHTML(){
+  const rs=D.rules.filter(r=>getRev(r));const cnt=k=>rs.filter(r=>(getRev(r).d||'')===k).length;const due=rs.filter(r=>revState(r)==='due').length;
+  const orphan=Object.keys(REV).filter(n=>!D.rules.some(r=>r.name===n));
+  return `<div class="card sec"><h3>Review list <span class="badge b-accent">${rs.length}</span></h3><p>Decisions, owners and notes you've recorded on policies. Open a policy and use the decision buttons. Saved in this browser only, so export a copy to the project folder.</p>
+  <div class="cmp-c" style="margin-bottom:8px">${Object.entries(DEC).map(([k,m])=>`<span class="badge ${m[0]}">${k==='accept'?'Accepted':m[1]} ${cnt(k)}</span>`).join('')}${due?`<span class="badge b-red">Re-review due ${due}</span>`:''}</div>
+  <div class="toolbar" style="margin:0 0 8px"><button class="btn primary" id="rev-export">Export review list (CSV)</button><button class="btn" id="rev-export-all" data-lvl="advanced">Export all policies (CSV)</button><label class="btn" for="rev-import">Import review list…</label><input type="file" id="rev-import" accept=".csv" class="hidden"></div>
+  ${rs.length?ruleListHTML(rs.sort((a,b)=>a.i-b.i).slice(0,lv('advanced')?200:12),r=>{const v=getRev(r);return `${decBadge(r)}${v.owner?'<span class="more">'+esc(v.owner)+'</span>':''}${v.note?'<span class="more">“'+esc(trunc(v.note,60))+'”</span>':''}`}):'<p class="more">Nothing reviewed yet.</p>'}
+  ${orphan.length?`<p class="more">${orphan.length} reviewed polic${orphan.length===1?'y is':'ies are'} no longer in this export: ${esc(orphan.slice(0,5).join(', '))}${orphan.length>5?' …':''}</p>`:''}</div>`;
+}
+
+/* ---------- compare with an older export and / or older usage file ---------- */
+const CMP={xml:null,xmlName:'',text:'',usage:null,usageName:''};
+let XMLTEXT='';           // raw text of the current export, so the two files can be swapped
+let CH=null;              // computed comparison
+/* ---------- comparison model ---------- */
+function savedOf(M){const t=M&&M.raw.metaInfo.saved;return t?new Date(t):null}
+function fmtWhen(d){return d?d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'}):'unknown date'}
+function gapText(a,b){if(!a||!b)return '';let m=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());if(b.getDate()<a.getDate())m--;
+  if(m<1){const d=Math.round((b-a)/86400000);return d+' day'+(d===1?'':'s')}const y=Math.floor(m/12),mo=m%12;return [y?y+' year'+(y===1?'':'s'):'',mo?mo+' month'+(mo===1?'':'s'):''].filter(Boolean).join(' ')}
+function analyseOld(){
+  const sD=D,sU=U,sE=EXPO,sHY=HY;
+  try{D=CMP.xml;U=null;D.rules.forEach(r=>{r.pp=parsePorts(r);r.u=null});computeShadow();computeRisk();computeExposure();CMP.expo=EXPO}
+  finally{D=sD;U=sU;EXPO=sE;HY=sHY}
+}
+const uniq=a=>[...new Set(a)];
+const setDiff=(a,b)=>{const B=new Set(b);return uniq(a).filter(x=>!B.has(x))};
+function sideLabels(r,side){return uniq(r[side].map(c=>c.label))}
+function leafSig(r){return [r.action,r.fromLeaves.map(l=>l.t).sort().join('|'),r.toLeaves.map(l=>l.t).sort().join('|'),r.ports.slice().sort().join('|')].join('#')}
+function memberLabels(M,a){
+  const al=M.AL[a];if(!al)return [];
+  return uniq(al.members.flatMap(m=>{
+    if(m.type==='2')return [m['alias-name']];
+    const out=[];if(m.user&&m.user!=='Any')out.push('user: '+m.user.replace(/\.\d+$/,''));
+    const ag=M.raw.AG[m.address];if(m.address&&m.address!=='Any'&&m.address!==m.interface)out.push(...(ag?ag.leaves.map(l=>l.t):[m.address]));
+    if(m.interface&&m.interface!=='Any'&&(m.address==='Any'||m.address===m.interface))out.push(m.interface);
+    if(!out.length)out.push('Any');return out}));
+}
+/* longest increasing subsequence: the policies that kept their relative order; the rest were moved */
+function lisKeep(seq){
+  const n=seq.length,tails=[],prev=new Array(n),idx=[];
+  for(let i=0;i<n;i++){let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(seq[tails[m]]<seq[i])lo=m+1;else hi=m}
+    prev[i]=lo>0?tails[lo-1]:-1;tails[lo]=i}
+  const keep=new Set();let k=tails.length?tails[tails.length-1]:-1;while(k>=0){keep.add(k);k=prev[k]}return keep;
+}
+function coversAll(A,B){return B.every(b=>A.some(a=>leafCovers(a,b)))}
+function portsCoverList(Apl,Bpl){return Bpl.every(pb=>Apl.some(pa=>pa.p==='any'||(pa.p===pb.p&&(pa.lo==null||(pb.lo!=null&&pa.lo<=pb.lo&&pb.hi<=pa.hi)))))}
+function impactOf(o,r){
+  let wider=false,tighter=false;
+  if(!o.enabled&&r.enabled)wider=true;if(o.enabled&&!r.enabled)tighter=true;
+  if(o.action==='Block'&&r.action!=='Block')wider=true;if(o.action!=='Block'&&r.action==='Block')tighter=true;
+  for(const s of ['fromLeaves','toLeaves']){if(!coversAll(o[s],r[s]))wider=true;if(!coversAll(r[s],o[s]))tighter=true}
+  const op=parsePorts(o),np=parsePorts(r);if(!portsCoverList(op,np))wider=true;if(!portsCoverList(np,op))tighter=true;
+  return wider&&tighter?'mixed':wider?'broader':tighter?'narrower':'';
+}
+function zonePairs(M){
+  const m=new Map();
+  for(const r of M.rules){if(!r.enabled||r.action==='Block'||/^Unhandled /i.test(r.name))continue;
+    for(const s of r.fromZones)for(const d of r.toZones){if(s===d)continue;const k=s+'\u0001'+d;if(!m.has(k))m.set(k,[]);m.get(k).push(r)}}
+  return m;
+}
+function diffExports(){
+  analyseOld();
+  const O=CMP.xml,oldBy=new Map(O.rules.map(r=>[r.name,r])),newBy=new Map(D.rules.map(r=>[r.name,r]));
+  D.rules.forEach(r=>r.chg=null);
+  const items=[];
+  // renames: a removed and an added policy with exactly the same addresses, ports and action
+  const removed=O.rules.filter(o=>!newBy.has(o.name)),added=D.rules.filter(r=>!oldBy.has(r.name));
+  const remSig=new Map();removed.forEach(o=>{const k=leafSig(o);if(!remSig.has(k))remSig.set(k,o)});
+  const renamedOld=new Set(),pairOld=new Map();
+  for(const r of added){const o=remSig.get(leafSig(r));if(o&&!renamedOld.has(o)){renamedOld.add(o);pairOld.set(r,o)}}
+  // moves among policies present in both (renames count as present)
+  const common=D.rules.filter(r=>oldBy.has(r.name)||pairOld.has(r));
+  const oldIdx=new Map(O.rules.map((o,i)=>[o,i]));
+  const seq=common.map(r=>oldIdx.get(oldBy.get(r.name)||pairOld.get(r)));
+  const keep=lisKeep(seq);const movedSet=new Set(common.filter((r,i)=>!keep.has(i)));
+  // alias changes (named aliases in both files)
+  const oa=new Set(O.userAliases),na=new Set(D.userAliases);
+  const aliasChanged=[];
+  for(const a of D.userAliases){if(!oa.has(a))continue;
+    const add=setDiff(memberLabels(D,a),memberLabels(O,a)),rem=setDiff(memberLabels(O,a),memberLabels(D,a));
+    if(add.length||rem.length){const users=D.rules.filter(r=>r.refsFrom.has(a)||r.refsTo.has(a));aliasChanged.push({a,add,rem,users})}}
+  const changedAliasSet=new Set(aliasChanged.map(x=>x.a));
+  const fieldsOf=(o,r)=>{
+    const f=[];
+    if(o.action!==r.action)f.push({k:'Action',from:o.action,to:r.action});
+    if(o.enabled!==r.enabled)f.push({k:'Enabled',from:o.enabled?'On':'Off',to:r.enabled?'On':'Off'});
+    for(const [k,s] of [['From','from'],['To','to']]){const add=setDiff(sideLabels(r,s),sideLabels(o,s)),rem=setDiff(sideLabels(o,s),sideLabels(r,s));if(add.length||rem.length)f.push({k,added:add,removed:rem})}
+    const pa=setDiff(r.ports,o.ports),pr=setDiff(o.ports,r.ports);if(pa.length||pr.length)f.push({k:'Ports',added:pa,removed:pr});
+    if(o.log!==r.log)f.push({k:'Logging',from:o.log?'On':'Off',to:r.log?'On':'Off'});
+    if(o.ips!==r.ips)f.push({k:'IPS',from:o.ips?'On':'Off',to:r.ips?'On':'Off'});
+    if((o.sched||'')!==(r.sched||''))f.push({k:'Schedule',from:o.sched||'–',to:r.sched||'–'});
+    if((o.desc||'')!==(r.desc||''))f.push({k:'Description',from:o.desc||'–',to:r.desc||'–',minor:true});
+    return f;
+  };
+  for(const r of D.rules){
+    const o=oldBy.get(r.name)||pairOld.get(r);
+    const it={r,o,fields:[],impact:'',moved:movedSet.has(r)?{from:o?oldIdx.get(o)+1:null,to:r.i}:null,via:[]};
+    if(!o){it.type='added'}
+    else{
+      it.fields=fieldsOf(o,r);
+      const real=it.fields.filter(f=>!f.minor);
+      // same aliases, but what they contain changed
+      if(!real.some(f=>f.k==='From'||f.k==='To')&&(o.fromLeaves.map(l=>l.t).sort().join()!==r.fromLeaves.map(l=>l.t).sort().join()||o.toLeaves.map(l=>l.t).sort().join()!==r.toLeaves.map(l=>l.t).sort().join()))
+        it.via=[...new Set([...r.refsFrom,...r.refsTo])].filter(a=>changedAliasSet.has(a));
+      it.impact=impactOf(o,r);
+      if(pairOld.has(r))it.type='renamed';
+      else if(real.length)it.type=real.length===1&&real[0].k==='Enabled'?'toggled':'edited';
+      else if(it.via.length||(it.impact&&o.fromLeaves.length))it.type='via';
+      else if(it.moved)it.type='moved';
+      else if(it.fields.length)it.type='minor';
+      else continue;
+    }
+    items.push(it);r.chg=it;
+  }
+  for(const o of removed){if(renamedOld.has(o))continue;items.push({type:'removed',r:null,o,fields:[],impact:'',moved:null,via:[]})}
+  // zone paths
+  const pn=zonePairs(D),po=zonePairs(O);
+  const zl=(M,id)=>(M.Z[id]&&M.Z[id].label)||id;
+  const opened=[...pn].filter(([k])=>!po.has(k)).map(([k,rs])=>{const [s,d]=k.split('\u0001');return {s,d,label:zl(D,s)+' → '+zl(D,d),rules:rs,newZone:!O.Z[s]||!O.Z[d]}});
+  const closed=[...po].filter(([k])=>!pn.has(k)).map(([k,rs])=>{const [s,d]=k.split('\u0001');return {s,d,label:zl(O,s)+' → '+zl(O,d),rules:rs}});
+  // internet exposure
+  const ek=e=>e.chip.ref||e.chip.label;const oldE=new Map((CMP.expo||[]).map(e=>[ek(e),e])),newE=new Map(EXPO.map(e=>[ek(e),e]));
+  const expoNew=EXPO.filter(e=>!oldE.has(ek(e))),expoGone=(CMP.expo||[]).filter(e=>!newE.has(ek(e)));
+  const expoWider=EXPO.filter(e=>oldE.has(ek(e))&&setDiff(e.ports,oldE.get(ek(e)).ports).length).map(e=>({e,added:setDiff(e.ports,oldE.get(ek(e)).ports)}));
+  const newHigh=D.rules.filter(r=>{if(!r.enabled||!r.risk||r.risk.level!=='high')return false;const o=r.chg?r.chg.o:oldBy.get(r.name);return !o||!o.enabled||!o.risk||o.risk.level!=='high'});
+  CH={items,aliasChanged,aliasAdded:D.userAliases.filter(a=>!oa.has(a)),aliasRemoved:O.userAliases.filter(a=>!na.has(a)),opened,closed,expoNew,expoGone,expoWider,newHigh,
+    oldSaved:savedOf(O),newSaved:savedOf(D),swapped:savedOf(O)&&savedOf(D)&&savedOf(O)>savedOf(D)};
+  CMP.removed=items.filter(i=>i.type==='removed').map(i=>i.o);
+}
+const CHT={added:['b-green','Added'],removed:['b-red','Removed'],edited:['b-amber','Edited'],renamed:['b-violet','Renamed'],moved:['b-grey','Moved'],toggled:['b-accent','Turned on/off'],via:['b-grey','Changed via alias'],minor:['b-grey','Description only']};
+const IMP={broader:['b-red','Broader'],narrower:['b-green','Narrower'],mixed:['b-amber','Broader and narrower']};
+function chgBadge(r){if(!CMP.xml||!r.chg)return '';const m=CHT[r.chg.type];if(!m)return '';return `<span class="badge ${m[0]}" title="Changed since ${esc(fmtWhen(CH&&CH.oldSaved))}">${m[1]}</span>`}
+function impBadge(it){const m=IMP[it.impact];return m?`<span class="badge ${m[0]}" title="${it.impact==='broader'?'Allows more than before':it.impact==='narrower'?'Allows less than before':'Allows some things it did not, and no longer allows others'}">${m[1]}</span>`:''}
+function chipList(xs,cls,sign,max=10){return xs.slice(0,max).map(x=>`<span class="chip ${cls}">${sign}${esc(x)}</span>`).join('')+(xs.length>max?`<span class="more"> +${xs.length-max} more</span>`:'')}
+function fieldsHTML(it,showMinor){
+  return it.fields.filter(f=>showMinor||!f.minor).map(f=>`<div class="fd"><span class="fk">${esc(f.k)}</span>${f.added?chipList(f.removed,'rm','−')+chipList(f.added,'ad','+'):`<span class="old">${esc(trunc(f.from,140))}</span> → <span class="new">${esc(trunc(f.to,140))}</span>`}</div>`).join('')
+   +(it.via.length?`<div class="fd"><span class="fk">Via alias</span>${it.via.map(a=>`<a class="chip alias" data-look="${esc(a)}">${esc(a)}</a>`).join('')}<span class="more">changed what it contains</span></div>`:'')
+   +(it.moved&&it.moved.from?`<div class="fd"><span class="fk">Position</span><span class="old">#${it.moved.from}</span> → <span class="new">#${it.moved.to}</span><span class="more">order matters in manual mode</span></div>`:'');
+}
+function summaryLine(it){
+  if(it.type==='added')return `${plainSentence(it.r)}`;
+  if(it.type==='removed')return `Was: ${plainSentence(it.o)}`;
+  const parts=it.fields.filter(f=>!f.minor).map(f=>f.added?`${f.k} ${f.added.length?'+'+f.added.length:''}${f.removed.length?' −'+f.removed.length:''}`:`${f.k} ${f.from} → ${f.to}`);
+  if(it.type==='renamed')parts.unshift(`was “${it.o.name}”`);
+  if(it.via.length)parts.push('via '+it.via.slice(0,2).join(', ')+(it.via.length>2?' …':''));
+  if(it.moved&&it.moved.from)parts.push(`moved #${it.moved.from} → #${it.moved.to}`);
+  if(!parts.length&&it.fields.some(f=>f.minor))parts.push('description changed');
+  if(!parts.length&&it.type==='via')parts.push('the addresses inside its aliases or groups changed');
+  return parts.join(' · ');
+}
+/* ---------- the older policy's detail (removed policies) ---------- */
+function openOldRule(name){
+  const o=CMP.xml&&CMP.xml.rules.find(r=>r.name===name);if(!o)return;
+  drawerStack=[];
+  showDrawer(o.name,()=>`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span class="badge b-red">Removed</span>${actionBadge(o)}${o.enabled?'':'<span class="badge b-grey">Was disabled</span>'}${o.risk&&o.risk.level!=='none'?`<span class="badge b-grey">Was ${esc(o.risk.level)} risk</span>`:''}</div>
+    <p class="plain">${esc(plainSentence(o))}</p><p class="more">This policy is in ${esc(CMP.xmlName)} (${esc(fmtWhen(CH.oldSaved))}) but not in the current export.</p>
+    <dl class="kv"><dt>Was at</dt><dd>#${o.i}</dd><dt>Ports</dt><dd class="mono">${esc(o.ports.join(', '))}</dd><dt>Description</dt><dd>${esc(o.desc||'–')}</dd></dl>
+    <h4>From</h4>${o.from.map(chipHTML).join('')||'–'}<h4>To</h4>${o.to.map(chipHTML).join('')||'–'}`);
+}
+/* ---------- compare drawer (loading files) ---------- */
+function readOldXml(text,name){CMP.xml=parseExport(text,name);CMP.xmlName=name;CMP.text=text}
+function compareDrawer(){
+  drawerStack=[];
+  showDrawer('Compare with older copies',()=>`<p class="lede">Load an older Policy Manager export (for example a saved copy or a backup) to see what changed. Results open in the <b>Changes</b> tab and show as badges on the Rules tab.</p>
+    <h4>Older export (XML)</h4><p>${CMP.xml?`<b>${esc(CMP.xmlName)}</b> · saved ${esc(fmtWhen(savedOf(CMP.xml)))} <a class="linkish" id="cmp-xml-clear">Remove</a>`:'<span class="more">None loaded.</span>'}</p><label class="btn" for="cmp-xml">Choose older XML…</label><input type="file" id="cmp-xml" accept=".xml" class="hidden">
+    <h4>Older usage (CSV)</h4><p>${CMP.usage?`<b>${esc(CMP.usageName)}</b> · ${esc(CMP.usage.win.label)} <a class="linkish" id="cmp-csv-clear">Remove</a>`:'<span class="more">None loaded.</span>'}</p><label class="btn" for="cmp-csv">Choose older usage CSV…</label><input type="file" id="cmp-csv" accept=".csv" class="hidden">
+    <p class="more" style="margin-top:14px">Usage is compared per day, so a 30-day file and a 7-day file compare fairly.</p><div id="cmp-msg"></div>`,()=>{
+      const rd=(inp,fn,go)=>{$(inp).onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{fn(r.result,f.name);analyse();refreshAll();if(go){closeDrawer();switchTab('changes')}else paintDrawer()}catch(err){$('#cmp-msg').innerHTML=`<div class="err">Could not read ${esc(f.name)}: ${esc(err.message)}</div>`}};r.readAsText(f)}};
+      rd('#cmp-xml',readOldXml,true);
+      rd('#cmp-csv',(t,n)=>{const rows=parseCSV(String(t).replace(/^﻿/,''));const h=(rows[0]||[]).map(x=>x.trim().toLowerCase());if(!h.includes('name')||!h.includes('hits'))throw new Error('Expected the columns name, bytes, hits and status.');CMP.usage={raw:t,win:parseWindow(n)};CMP.usageName=n},false);
+      const cx=$('#cmp-xml-clear');if(cx)cx.onclick=clearOldXml;
+      const cc=$('#cmp-csv-clear');if(cc)cc.onclick=()=>{CMP.usage=null;D.rules.forEach(r=>{r.u0=null;r.trend=null});refreshAll();paintDrawer()};
+    });
+}
+function clearOldXml(){CMP.xml=null;CMP.text='';CH=null;D.rules.forEach(r=>r.chg=null);refreshAll();if(drawerStack.length)paintDrawer()}
+function swapExports(){
+  if(!CMP.text||!XMLTEXT)return;
+  const curT=XMLTEXT,curN=D.raw.metaInfo.file,oldT=CMP.text,oldN=CMP.xmlName;
+  readOldXml(curT,curN);XMLTEXT=oldT;loaded(parseExport(oldT,oldN));switchTab('changes');
+}
+/* ---------- Changes tab ---------- */
+let chFilter='',chQuery='',chSecurity=false;
+function renderChanges(){
+  const el=$('#chout');if(!el||!D)return;
+  $('#tab-changes').classList.toggle('hidden',!CMP.xml&&!lv('medium'));
+  if(!CMP.xml||!CH){el.innerHTML=(CMP.usage&&U?trendCardHTML():'')+`<div class="card sec"><h3>Compare with an older export</h3><p>Load an older Policy Manager export of this Firebox, for example a saved copy or a backup. The page shows what changed since then: new ways in from the internet, policies that got broader, new high-risk policies, added, removed, edited, renamed and moved policies, and edited aliases.</p><label class="btn primary" for="cmp-xml2">Choose older export (XML)…</label><input type="file" id="cmp-xml2" accept=".xml" class="hidden"> <span class="more">Older usage files can be added with Compare… (top right).</span><div id="cmp-msg2"></div></div>`;return}
+  const M=lv('medium'),A=lv('advanced');
+  const O=CMP.xml,I=CH.items,cnt=t=>I.filter(i=>i.type===t).length;
+  const head=(M2,label,file,when)=>`<div class="cmpfile"><span class="more">${label}</span><b>${esc(file)}</b><span>Saved ${esc(fmtWhen(when))} · Fireware ${esc(M2.raw.metaInfo.version||'?')}</span><span class="more">${M2.counts.policies} policies · ${M2.counts.aliases} named aliases</span></div>`;
+  let h=`<div class="card cmphead">${head(O,'Older',CMP.xmlName,CH.oldSaved)}<div class="cmparrow">→<span class="more">${esc(gapText(CH.oldSaved,CH.newSaved))}</span></div>${head(D,'Current',D.raw.metaInfo.file,CH.newSaved)}
+    <div class="cmpact"><button class="btn" id="ch-swap" title="Use the other file as the current export">Swap</button><button class="btn" id="cmp-open3">Change files…</button>${M?'<button class="btn" id="ch-export">Export changes (CSV)</button>':''}</div></div>`;
+  if(CH.swapped)h+=`<div class="err" style="margin:0 0 12px">The file loaded as “older” was saved after the current export. <a class="linkish" id="ch-swap2">Swap them</a> so the changes read the right way round.</div>`;
+  const tiles=[[`${O.counts.policies} → ${D.counts.policies}`,'Policies'],[cnt('added'),'Added'],[cnt('removed'),'Removed'],[cnt('edited')+cnt('toggled'),'Edited'],[I.filter(i=>i.impact==='broader'||i.impact==='mixed').filter(i=>i.type!=='added').length,'Now broader'],[cnt('renamed'),'Renamed'],[I.filter(i=>i.moved).length,'Moved'],[CH.aliasChanged.length,'Aliases edited'],[`${(CMP.expo||[]).length} → ${EXPO.length}`,'Reachable from the internet']];
+  h+=`<div class="tiles">${tiles.map(([n,l])=>`<div class="tile"><b>${esc(n)}</b><span>${esc(l)}</span></div>`).join('')}</div>`;
+  // security impact
+  const lim=M?10:5;
+  const rl=(rs,ex)=>rs.length?ruleListHTML(rs.slice(0,lim),ex)+(rs.length>lim?`<p class="more">${rs.length-lim} more.</p>`:''):'<p class="more">None.</p>';
+  const broader=I.filter(i=>i.type!=='added'&&i.type!=='removed'&&(i.impact==='broader'||i.impact==='mixed')&&i.r.enabled).sort((a,b)=>(b.r.risk?b.r.risk.score:0)-(a.r.risk?a.r.risk.score:0));
+  const toggled=I.filter(i=>i.fields.some(f=>f.k==='Enabled'));
+  const expoItem=e=>`<li>${chipHTML(e.chip)}<span class="more mono">${esc(e.ports.slice(0,4).join(', '))}</span><span class="more">via ${e.rules.slice(0,2).map(r=>`<a class="linkish" data-rule="${r.i}">${esc(r.name)}</a>`).join(', ')}</span>${e.fromAny?'<span class="badge b-red">from anywhere</span>':'<span class="badge b-grey">specific sources</span>'}</li>`;
+  h+=`<div class="cols">
+   <div class="card sec"><h3>New ways in from the internet <span class="badge ${CH.expoNew.length?'b-red':'b-green'}">${CH.expoNew.length}</span></h3><p>Reachable from outside now, but not in the older export.</p>${CH.expoNew.length?'<ul class="list">'+CH.expoNew.map(expoItem).join('')+'</ul>':'<p class="more">None.</p>'}
+     ${CH.expoWider.length?`<h4>More ports open (${CH.expoWider.length})</h4><ul class="list">${CH.expoWider.map(x=>`<li>${chipHTML(x.e.chip)}${chipList(x.added,'ad','+')}</li>`).join('')}</ul>`:''}
+     ${CH.expoGone.length?`<h4>No longer reachable (${CH.expoGone.length})</h4><ul class="list">${CH.expoGone.slice(0,lim).map(e=>`<li>${chipHTML(e.chip)}<span class="more mono">${esc(e.ports.slice(0,4).join(', '))}</span></li>`).join('')}</ul>${CH.expoGone.length>lim?`<p class="more">${CH.expoGone.length-lim} more.</p>`:''}`:''}</div>
+   <div class="card sec"><h3>Policies that now allow more <span class="badge ${broader.length?'b-amber':'b-green'}">${broader.length}</span></h3><p>Existing policies with more sources, destinations or ports, a less strict action, or switched on. Highest risk first.</p>${rl(broader.map(i=>i.r),r=>`${impBadge(r.chg)}<div class="more" style="flex-basis:100%">${esc(summaryLine(r.chg))}</div>`)}</div>
+   <div class="card sec"><h3>New high-risk policies <span class="badge ${CH.newHigh.length?'b-red':'b-green'}">${CH.newHigh.length}</span></h3><p>High risk now, and either new or not high risk in the older export.</p>${rl(CH.newHigh,r=>`${riskBadge(r,A)}${chgBadge(r)}`)}</div>
+   <div class="card sec"><h3>Zone paths opened and closed <span class="badge b-accent">+${CH.opened.filter(p=>!p.newZone).length} / −${CH.closed.length}</span></h3><p>Pairs of zones that policies now let talk (or no longer let talk), compared with the older export.</p>
+     ${(()=>{const ex=CH.opened.filter(p=>!p.newZone),nz=CH.opened.filter(p=>p.newZone),n=M?(A?400:12):5;
+       const li=p=>`<li><b>${esc(p.label)}</b><span class="more">by ${p.rules.slice(0,2).map(r=>`<a class="linkish" data-rule="${r.i}">${esc(r.name)}</a>`).join(', ')}${p.rules.length>2?' +'+(p.rules.length-2):''}</span></li>`;
+       return `<h4>Opened between zones that already existed (${ex.length})</h4>${ex.length?'<ul class="list">'+ex.slice(0,n).map(li).join('')+'</ul>'+(ex.length>n?`<p class="more">${ex.length-n} more${A?'':' in '+(M?'Advanced':'Medium')+' view'}.</p>`:''):'<p class="more">None.</p>'}
+       <h4>Involving zones added since (${nz.length})</h4>${nz.length?(A?'<ul class="list">'+nz.map(li).join('')+'</ul>':`<p class="more">New VLANs or zones: ${esc(uniq(nz.flatMap(p=>[p.s,p.d]).filter(z=>!CMP.xml.Z[z]).map(zoneLabel)).slice(0,10).join(', '))}${A?'':'. Listed in full in Advanced view'}.</p>`):'<p class="more">None.</p>'}`})()}
+     <h4>Closed (${CH.closed.length})</h4>${CH.closed.length?'<ul class="list">'+CH.closed.slice(0,M?(A?200:12):5).map(p=>`<li><b>${esc(p.label)}</b><span class="more">was ${p.rules.slice(0,2).map(r=>esc(r.name)).join(', ')}</span></li>`).join('')+'</ul>':'<p class="more">None.</p>'}</div>
+   ${toggled.length?`<div class="card sec"><h3>Switched on or off <span class="badge b-accent">${toggled.length}</span></h3><ul class="list">${toggled.map(i=>`<li>${i.r.enabled?'<span class="badge b-amber">Turned on</span>':'<span class="badge b-grey">Turned off</span>'}<a data-rule="${i.r.i}">${esc(i.r.name)}</a></li>`).join('')}</ul></div>`:''}
+  </div>`;
+  if(!M){$('#chout').innerHTML=h+`<p class="more">Switch to <a class="linkish" data-setlevel="medium">Medium</a> for every change, field by field, and the alias changes.</p>`;bindChanges();return}
+  // full change list
+  const types=[['','All',I.length],['added','Added',cnt('added')],['removed','Removed',cnt('removed')],['edited','Edited',cnt('edited')],['toggled','On/off',cnt('toggled')],['renamed','Renamed',cnt('renamed')],['moved','Moved',I.filter(i=>i.moved).length],['via','Via alias',cnt('via')]].filter(t=>t[2]||!t[0]);
+  if(A&&cnt('minor'))types.push(['minor','Description only',cnt('minor')]);
+  let list=I.filter(i=>(A||i.type!=='minor'));
+  if(chFilter)list=list.filter(i=>chFilter==='moved'?!!i.moved:i.type===chFilter);
+  if(chSecurity)list=list.filter(i=>i.impact==='broader'||i.impact==='mixed'||(i.r&&i.r.enabled&&i.r.risk&&(i.r.risk.level==='high'||(i.type==='added'&&i.r.risk.level==='medium'))));
+  if(chQuery){const q=chQuery.toLowerCase();list=list.filter(i=>((i.r&&i.r.text)||'').includes(q)||(i.o&&i.o.name.toLowerCase().includes(q))||summaryLine(i).toLowerCase().includes(q))}
+  const ord=t=>({added:1,edited:2,toggled:2,renamed:3,via:4,moved:5,minor:6,removed:7})[t]||9;
+  list.sort((a,b)=>ord(a.type)-ord(b.type)||((a.r?a.r.i:1e3+a.o.i)-(b.r?b.r.i:1e3+b.o.i)));
+  h+=`<div class="card sec" style="margin-top:14px"><h3>Every change <span class="badge b-accent">${list.length}</span></h3><p>Click a row to see exactly what changed. <span class="chip ad">+ added</span> <span class="chip rm">− removed</span>. Names on the From and To lines are aliases or addresses as they appear in the policy.</p>
+   <div class="toolbar"><div class="seg" id="ch-types">${types.map(t=>`<button type="button" data-cht="${t[0]}" aria-pressed="${chFilter===t[0]}">${t[1]} ${t[2]}</button>`).join('')}</div>
+   <label title="Policies that now allow more, plus new policies rated medium or high risk"><input type="checkbox" id="ch-sec"${chSecurity?' checked':''}> Only security-relevant</label><input type="search" id="ch-q" placeholder="Search changes" value="${esc(chQuery)}"></div>
+   <div class="chlist">${list.slice(0,A?1000:200).map(i=>{const m=CHT[i.type]||['b-grey',i.type];const nm=i.r?i.r.name:i.o.name;
+     const open=i.r?`<a class="linkish" data-rule="${i.r.i}">Open policy</a>`:`<a class="linkish" data-oldrule="${esc(i.o.name)}">Open old policy</a>`;
+     return `<details class="chrow"><summary><span class="badge ${m[0]}">${m[1]}</span>${i.moved&&i.type!=='moved'?'<span class="badge b-grey">Moved</span>':''}${impBadge(i)}<b>${esc(nm)}</b>${i.r?riskBadge(i.r,A):''}<span class="more chsum">${esc(trunc(summaryLine(i),A?220:140))}</span></summary>
+       <div class="chbody">${i.type==='added'||i.type==='removed'?`<p class="plain">${esc(plainSentence(i.r||i.o))}</p>`:fieldsHTML(i,A)}<p>${open}</p></div></details>`}).join('')||'<p class="more">No changes match.</p>'}</div></div>`;
+  // aliases
+  const al=CH.aliasChanged.slice().sort((a,b)=>b.users.length-a.users.length);
+  h+=`<div class="card sec" style="margin-top:14px"><h3>Aliases edited <span class="badge b-accent">${al.length}</span>${A?` <span class="badge b-green">${CH.aliasAdded.length} new</span> <span class="badge b-red">${CH.aliasRemoved.length} removed</span>`:''}</h3><p>Named aliases whose contents changed. Every policy that uses one is affected, even if the policy itself wasn't edited. Most-used first.</p>
+    ${al.length?`<div class="rt-wrap" style="max-height:none"><table class="rt"><thead><tr><th>Alias</th><th>Changes</th><th>Used by</th></tr></thead><tbody>${al.slice(0,A?500:15).map(x=>`<tr><td><a class="linkish" data-look="${esc(x.a)}">${esc(x.a)}</a></td><td>${chipList(x.rem,'rm','−',8)}${chipList(x.add,'ad','+',8)}</td><td>${x.users.length?`${x.users.length} polic${x.users.length===1?'y':'ies'}<div class="more">${esc(x.users.slice(0,3).map(r=>r.name).join(', '))}${x.users.length>3?' …':''}</div>`:'<span class="more">none</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="more">None.</p>'}
+    ${A&&CH.aliasAdded.length?`<h4>New aliases</h4><p class="more">${CH.aliasAdded.map(a=>`<a class="linkish" data-look="${esc(a)}">${esc(a)}</a>`).join(', ')}</p>`:''}${A&&CH.aliasRemoved.length?`<h4>Removed aliases</h4><p class="more">${esc(CH.aliasRemoved.join(', '))}</p>`:''}</div>`;
+  if(A)h+=trendCardHTML();
+  el.innerHTML=h;bindChanges();
+}
+function bindChanges(){
+  const s=$('#ch-swap');if(s)s.onclick=swapExports;const s2=$('#ch-swap2');if(s2)s2.onclick=swapExports;
+  const o3=$('#cmp-open3');if(o3)o3.onclick=compareDrawer;
+  const ex=$('#ch-export');if(ex)ex.onclick=exportChanges;
+  document.querySelectorAll('[data-cht]').forEach(b=>b.onclick=()=>{chFilter=b.dataset.cht;renderChanges()});
+  const sec=$('#ch-sec');if(sec)sec.onchange=()=>{chSecurity=sec.checked;renderChanges()};
+  const q=$('#ch-q');if(q)q.oninput=()=>{chQuery=q.value;const p=q.selectionStart;renderChanges();const q2=$('#ch-q');q2.focus();q2.setSelectionRange(p,p)};
+}
+function exportChanges(){
+  const fw=(D.raw.metaInfo.file||'firewall').replace(/\.xml$/i,'').replace(/[^\w.-]+/g,'_');
+  const rows=[['Change','Policy','Old name','Impact','Field','Removed','Added','Before','After','Position before','Position now','Risk now','Older file','Older saved','Current saved']];
+  for(const i of CH.items){
+    const base=[CHT[i.type]?CHT[i.type][1]:i.type,i.r?i.r.name:i.o.name,i.type==='renamed'?i.o.name:'',i.impact];
+    const tail=[i.moved&&i.moved.from?i.moved.from:(i.o?i.o.i:''),i.r?i.r.i:'',i.r&&i.r.risk?i.r.risk.level:'',CMP.xmlName,fmtWhen(CH.oldSaved),fmtWhen(CH.newSaved)];
+    if(i.type==='added'||i.type==='removed'){rows.push([...base,'Policy','','',i.type==='removed'?plainSentence(i.o):'',i.type==='added'?plainSentence(i.r):'',...tail]);continue}
+    const fs=i.fields.length?i.fields:[{k:i.via.length?'Via alias':'Position',from:'',to:i.via.join('; ')}];
+    for(const f of fs)rows.push([...base,f.k,f.removed?f.removed.join('; '):'',f.added?f.added.join('; '):'',f.from||'',f.to||'',...tail]);
+  }
+  download(`Firewall-Changes-${fw}-${stamp()}.csv`,rows.map(r=>r.map(csvCell).join(',')).join('\r\n'));
+}
+
+function mapOldUsage(){
+  const rows=parseCSV(String(CMP.usage.raw).replace(/^﻿/,''));const hdr=rows.shift().map(h=>h.trim().toLowerCase());const ix=n=>hdr.indexOf(n);
+  const byName=new Map();D.rules.forEach(r=>{(r.pnames||[]).forEach(n=>byName.set(n,r));if(!byName.has(r.name+'-00'))byName.set(r.name+'-00',r)});
+  D.rules.forEach(r=>r.u0=null);
+  for(const c of rows){const name=(c[ix('name')]||'').trim();const r=byName.get(name)||byName.get(name.replace(/-\d+$/,''));if(!r)continue;
+    r.u0=r.u0||{hits:0,bytes:0};r.u0.hits+=+c[ix('hits')]||0;r.u0.bytes+=+c[ix('bytes')]||0}
+  const d0=CMP.usage.win.days||1;
+  D.rules.forEach(r=>{if(!r.u0)return;r.u0.perDay=r.u0.hits/d0;
+    if(U&&r.u&&!r.u.none){const now=r.u.hits/(U.days||1),was=r.u0.perDay;
+      r.trend=was>0&&now===0?'quiet':was===0&&now>0?'new':was>0&&now/was>=3?'up':was>0&&now/was<=1/3?'down':null;r.trendRatio=was>0?now/was:null}});
+}
+function trendBadge(r){if(!r.trend)return '';const m={quiet:['b-amber','Went quiet','Had traffic in the older file, none now'],new:['b-accent','New traffic','No traffic in the older file, some now'],up:['b-violet','Up ×'+(r.trendRatio==null?'':r.trendRatio>=10?Math.round(r.trendRatio):r.trendRatio.toFixed(1)),'At least 3× more hits per day than the older file'],down:['b-grey','Down','Under a third of the older hits per day']}[r.trend];return `<span class="badge ${m[0]}" title="${esc(m[2])}">${esc(m[1])}</span>`}
+function trendCardHTML(){
+  if(!CMP.usage||!U)return '';
+  const q=D.rules.filter(r=>r.trend==='quiet'),n=D.rules.filter(r=>r.trend==='new'),up=D.rules.filter(r=>r.trend==='up').sort((a,b)=>b.trendRatio-a.trendRatio),dn=D.rules.filter(r=>r.trend==='down');
+  return `<div class="card sec" style="grid-column:1/-1"><h3>Usage trend <span class="badge b-accent">${esc(CMP.usage.win.label)} → ${esc(U.win.label)}</span></h3><p>Hits per day, older file against current. “Went quiet” policies are strong removal candidates if the older file was long.</p>
+  <h4>Went quiet (${q.length})</h4>${q.length?ruleListHTML(q):'<p class="more">None.</p>'}<h4>New traffic (${n.length})</h4>${n.length?ruleListHTML(n):'<p class="more">None.</p>'}
+  <h4>Up 3× or more (${up.length})</h4>${up.length?ruleListHTML(up.slice(0,15),trendBadge):'<p class="more">None.</p>'}<h4>Down to a third or less (${dn.length})</h4>${dn.length?ruleListHTML(dn.slice(0,15)):'<p class="more">None.</p>'}</div>`;
+}
+
+/* ---------- dropped-traffic analysis (any denied-traffic CSV export) ---------- */
+let DL=null;
+function findCol(hdr,res){const norm=hdr.map(h=>h.toLowerCase().replace(/[\s_\-.()]/g,''));for(const re of res){const i=norm.findIndex(h=>re.test(h));if(i>=0)return i}return -1}
+function loadDenyLog(text,name){
+  const rows=parseCSV(String(text).replace(/^﻿/,''));if(rows.length<2)throw new Error('The file has no rows.');
+  const hdr=rows.shift();
+  const c={src:findCol(hdr,[/^(src|source)(ip|addr|address)?$/,/^(src|source)/,/^client(ip)?$/]),dst:findCol(hdr,[/^(dst|dest|destination)(ip|addr|address)?$/,/^(dst|dest|destination)(?!port)/,/^server(ip)?$/]),
+    port:findCol(hdr,[/^(dst|dest|destination)port$/,/^dport$/,/^port$/,/^service$/,/^(dst|dest)?svc$/]),proto:findCol(hdr,[/^proto(col)?$/]),
+    count:findCol(hdr,[/^(count|hits|sessions|connections|events|total)$/]),action:findCol(hdr,[/^(action|disposition|result|verdict)$/]),policy:findCol(hdr,[/^policy(name)?$/])};
+  if(c.src<0||c.dst<0)throw new Error(`Couldn't find source and destination IP columns. Columns found: ${hdr.join(', ')}.`);
+  const agg={src:new Map(),dst:new Map(),port:new Map(),pair:new Map(),pol:new Map()};let total=0,rowsUsed=0;
+  const add=(m,k,n)=>m.set(k,(m.get(k)||0)+n);
+  for(const r of rows){
+    if(c.action>=0&&!/deny|denied|drop|block|reject/i.test(r[c.action]||''))continue;
+    const s=(r[c.src]||'').trim(),d=(r[c.dst]||'').trim();if(!s||!d)continue;
+    const n=c.count>=0?(+String(r[c.count]).replace(/,/g,'')||1):1;
+    let pr=c.proto>=0?(r[c.proto]||'').toLowerCase():'',pt=c.port>=0?(r[c.port]||'').trim():'';
+    if(/^\d+$/.test(pr))pr=PROTO[pr]||pr;
+    const port=pt?(/\//.test(pt)?pt.toLowerCase():(pr?pr+'/':'')+pt):(pr||'');
+    add(agg.src,s,n);add(agg.dst,d,n);if(port)add(agg.port,port,n);add(agg.pair,s+'\u0001'+d+'\u0001'+port,n);if(c.policy>=0)add(agg.pol,r[c.policy]||'(none)',n);
+    total+=n;rowsUsed++;
+  }
+  if(!rowsUsed)throw new Error('No denied rows found'+(c.action>=0?' (filtered on the action column)':'')+'.');
+  const top=m=>[...m].sort((a,b)=>b[1]-a[1]).slice(0,12);
+  DL={name,total,rows:rowsUsed,cols:c,hdr,src:top(agg.src),dst:top(agg.dst),port:top(agg.port),pair:top(agg.pair),pol:top(agg.pol)};
+}
+function nameIP(ip){const n=ip2n(ip);if(n==null)return esc(ip);const z=D.zonesOfLeaf({k:'host',lo:n,hi:n}).map(zoneLabel).join(', ');return `<span class="mono">${esc(ip)}</span>${D.ipName[ip]?' <b>'+esc(D.ipName[ip])+'</b>':''} <span class="zt">${esc(z)}</span>`}
+function denyCardHTML(){
+  const deny=D.rules.filter(r=>/^Unhandled (Internal|External) Packet/i.test(r.name)&&r.u&&!r.u.none);
+  const intro=`<p>Traffic the Firebox dropped because no policy allowed it.${deny.length?' The usage file shows '+deny.map(r=>`${esc(fmtNum(r.u.hits))} hits on ${esc(r.name)}`).join(' and ')+'.':''} Load a CSV export of denied traffic (for example a WatchGuard Cloud log search filtered to denied traffic, or a Traffic Monitor export) to see who and what. It needs source and destination IP columns; port, protocol, count and action columns are used when present.</p>`;
+  let h=`<div class="card sec" style="grid-column:1/-1"><h3>Dropped traffic analysis${DL?` <span class="badge b-red">${esc(fmtNum(DL.total))} drops</span>`:''}</h3>${intro}<div class="toolbar" style="margin:0 0 8px"><label class="btn" for="dfile">Load denied-traffic CSV…</label><input type="file" id="dfile" accept=".csv" class="hidden">${DL?`<span class="more">${esc(DL.name)} · ${DL.rows.toLocaleString('en-NZ')} rows</span>`:''}</div><div id="dmsg"></div>`;
+  if(DL){
+    const tbl=(title,list,fmt)=>`<div><h4>${title}</h4><table class="rt"><tbody>${list.map(([k,n])=>`<tr><td>${fmt(k)}</td><td class="uc">${esc(fmtNum(n))}</td></tr>`).join('')}</tbody></table></div>`;
+    h+=`<div class="cols">${tbl('Top sources',DL.src,nameIP)}${tbl('Top destinations',DL.dst,nameIP)}${DL.port.length?tbl('Top ports',DL.port,k=>`<span class="mono">${esc(k)}</span>`):''}${DL.pol.length?tbl('By policy',DL.pol,k=>esc(k)):''}</div>
+    <h4>Top source → destination pairs, checked against the policies</h4><table class="rt"><thead><tr><th>From</th><th>To</th><th>Port</th><th class="uc">Drops</th><th>What the policies say</th></tr></thead><tbody>${DL.pair.map(([k,n])=>{const [s,d,pt]=k.split('\u0001');const t=pathTest(s,d,pt);let say='';
+      if(t.err)say=`<span class="more">${esc(t.err)}</span>`;else if(!t.p.proto)say=t.matches.some(r=>r.action!=='Block')?'Some ports allowed, not this one':'No policy allows any of it';
+      else if(t.first&&!/^Unhandled /i.test(t.first.name)&&t.first.action!=='Block')say=`Allowed by <a class="linkish" data-rule="${t.first.i}">${esc(t.first.name)}</a>, so check why it was dropped (proxy, IPS, schedule, NAT)`;
+      else if(t.first&&t.first.action==='Block'&&!/^Unhandled /i.test(t.first.name))say=`Blocked on purpose by <a class="linkish" data-rule="${t.first.i}">${esc(t.first.name)}</a>`;
+      else say=`No policy allows it${t.near.length?`. Closest: <a class="linkish" data-rule="${t.near[0].r.i}">${esc(t.near[0].r.name)}</a> (wrong ${esc(t.near[0].miss)})`:''}`;
+      return `<tr><td>${nameIP(s)}</td><td>${nameIP(d)}</td><td class="mono">${esc(pt||'–')}</td><td class="uc">${esc(fmtNum(n))}</td><td>${say}</td></tr>`}).join('')}</tbody></table>`;
+  }
+  return h+'</div>';
+}
+
+/* ---------- matrix ---------- */
+function renderTiles(){
+  const c=D.counts,rs=D.rules,M=lv('medium'),A=lv('advanced');
+  const high=rs.filter(r=>r.risk&&r.risk.level==='high'&&!isAccepted(r)).length,acc=rs.filter(r=>r.risk&&r.risk.score>0&&isAccepted(r)).length,due=rs.filter(r=>revState(r)==='due').length;
+  let t=[[c.enabled,'Enabled policies'],[high,'High-risk policies'+(acc?` (+${acc} accepted)`:'')],[EXPO.length,'Reachable from the internet']];if(due)t.push([due,'Re-reviews due']);
+  if(U)t.push([fmtNum(U.totalHits),'Hits · '+U.win.label],[U.idle,'Enabled, no traffic']);
+  if(M){t.push([rs.filter(r=>r.action==='Proxy').length,'Proxy policies'],[c.aliases,'Named aliases'],[c.unused,'Aliases not used'],[D.zoneOrder.filter(z=>D.Z[z].lo!=null).length,'Network zones']);if(U)t.push([fmtBytes(U.totalBytes),'Data'],[U.hits80,'Policies carrying 80% of hits'])}
+  if(A){t.push([c.policies-c.enabled,'Disabled'],[rs.filter(r=>r.shadow).length,'Never reached']);if(CH)t.push([CH.items.filter(i=>i.type!=='minor').length,'Changes since '+fmtWhen(CH.oldSaved)])}
+  $('#tiles').innerHTML=t.map(([n,l])=>`<div class="tile"><b>${esc(n)}</b><span>${esc(l)}</span></div>`).join('');
+}
+function renderMatrix(){
+  const inclDis=lv('medium')&&$('#mx-dis').checked,showBroad=lv('medium')&&$('#mx-any').checked,showEmpty=lv('advanced')&&$('#mx-empty').checked;
+  let metric=U?$('#mx-metric').value:'count';if(!lv('medium')&&metric!=='hits')metric='count';
+  const rules=D.rules.filter(r=>inclDis||r.enabled);
+  const cell={};const rowN={},colN={};
+  for(const r of rules)for(const s of r.fromZones)for(const d of r.toZones){const k=s+'\u0001'+d;(cell[k]=cell[k]||[]).push(r);rowN[s]=(rowN[s]||0)+1;colN[d]=(colN[d]||0)+1}
+  const broad=new Set(['Any','Any-Trusted','Any-Optional']);
+  const keep=id=>(showBroad||!broad.has(id));
+  const rows=D.zoneOrder.filter(id=>keep(id)&&(showEmpty||rowN[id]));
+  const cols=D.zoneOrder.filter(id=>keep(id)&&(showEmpty||colN[id]));
+  const val=l=>metric==='hits'?l.reduce((s,r)=>s+(r.u?r.u.hits:0),0):metric==='bytes'?l.reduce((s,r)=>s+(r.u?r.u.bytes:0),0):metric==='idle'?l.filter(r=>r.enabled&&r.uv==='idle').length:l.length;
+  let max=1;for(const k in cell)max=Math.max(max,val(cell[k]));
+  const fill=(p,base)=>`background:color-mix(in srgb,var(${base}) ${p}%,var(--surface));color:${p>50?'var(--surface)':'var(--ink)'}`;
+  const look=l=>{
+    const v=val(l);
+    if(metric==='count')return {txt:v,style:fill(Math.round(12+78*Math.sqrt(v/max)),'--accent')};
+    if(metric==='idle'){const en=l.filter(r=>r.enabled&&!r.u.none);const allIdle=en.length&&en.every(r=>r.u.hits===0);
+      if(!v)return {txt:'',style:'',cls:'quiet'};return {txt:v,style:allIdle?fill(62,'--amber'):fill(20,'--amber'),cls:allIdle?'allidle':''}}
+    if(!v)return {txt:'0',style:'',cls:'zero'};
+    return {txt:metric==='hits'?fmtNum(v):fmtBytesShort(v),style:fill(Math.round(10+80*Math.log10(1+v)/Math.log10(1+max)),metric==='bytes'?'--violet':'--accent')};
+  };
+  const hdr=c=>`<th title="${esc(zoneLabel(c))}${D.Z[c].cidr?' · '+esc(D.Z[c].cidr):''}"><span class="vh"><span class="zk" style="background:${zoneColor(D.Z[c].kind)}"></span>${esc(zoneLabel(c))}</span></th>`;
+  let h='<thead><tr><th class="corner">From ↓ &nbsp; To →</th>'+cols.map(hdr).join('')+'</tr></thead><tbody>';
+  for(const r of rows){
+    h+=`<tr><th title="${esc(zoneLabel(r))}${D.Z[r].cidr?' · '+esc(D.Z[r].cidr):''}"><span class="zk" style="background:${zoneColor(D.Z[r].kind)}"></span>${esc(zoneLabel(r))}</th>`;
+    for(const c of cols){const l=cell[r+'\u0001'+c]||[];
+      if(!l.length){h+=`<td class="e${r===c?' self':''}"></td>`;continue}
+      const blk=l.some(x=>x.action==='Block'),L=look(l);
+      const tip=`${zoneLabel(r)} → ${zoneLabel(c)}: ${l.length} polic${l.length===1?'y':'ies'}`+(U?` · ${fmtNum(l.reduce((s,x)=>s+(x.u?x.u.hits:0),0))} hits · ${fmtBytes(l.reduce((s,x)=>s+(x.u?x.u.bytes:0),0))} · ${l.filter(x=>x.enabled&&x.uv==='idle').length} with no traffic`:'')+(blk?' (includes a Block)':'');
+      h+=`<td data-s="${esc(r)}" data-d="${esc(c)}" class="${r===c?'self ':''}${blk&&metric==='count'?'blk ':''}${L.cls||''}" style="${L.style}" title="${esc(tip)}">${esc(L.txt)}</td>`;
+    }
+    h+='</tr>';
+  }
+  $('#mx').className='mx'+(metric!=='count'?' um':'');
+  $('#mx').innerHTML=h+'</tbody>';
+  $('#mx').onclick=e=>{const td=e.target.closest('td[data-s]');if(!td)return;openCell(td.dataset.s,td.dataset.d,cell[td.dataset.s+'\u0001'+td.dataset.d]||[])};
+  const kinds=[['Trusted','Trusted VLAN'],['Optional','Optional VLAN'],['Custom','Custom zone'],['vpn','VPN / users'],['broad','Broad (Any…)'],['external','External']];
+  const ramp=base=>`<span class="ramp">${[1,.6,.35,.15,.02].map(f=>`<i style="background:color-mix(in srgb,var(${base}) ${Math.round(12+78*Math.sqrt(1-f))}%,var(--surface))"></i>`).join('')}</span>`;
+  const scale={count:`<span>Fewer ${ramp('--accent')} more policies</span><span style="color:var(--red);font-weight:700">Red number</span><span>= a Block policy is included.</span>`,
+    hits:`<span>Fewer ${ramp('--accent')} more hits (log scale)</span><span>0 = allowed, but nothing used it.</span>`,
+    bytes:`<span>Less ${ramp('--violet')} more data (log scale)</span><span>0 = allowed, but nothing used it.</span>`,
+    idle:`<span><i class="zk" style="background:color-mix(in srgb,var(--amber) 62%,var(--surface))"></i>Every policy here had no traffic: an open path nobody used</span><span><i class="zk" style="background:color-mix(in srgb,var(--amber) 20%,var(--surface))"></i>Some policies here had no traffic</span><span>Number = policies with no traffic.</span>`}[metric];
+  $('#mx-legend').innerHTML=kinds.map(([k,l])=>`<span><span class="zk" style="background:${zoneColor(k)}"></span>${l}</span>`).join('')+scale+'<span>Outlined cells are traffic within the same zone.</span>';
+  $('#mx-note').classList.toggle('hidden',metric!=='hits'&&metric!=='bytes');
+}
+function openCell(s,d,list){
+  drawerStack=[];
+  showDrawer(`${zoneLabel(s)} → ${zoneLabel(d)}`,()=>{
+    return `<p class="lede">${list.length} polic${list.length===1?'y':'ies'} allow or handle traffic from <b>${esc(zoneLabel(s))}</b>${D.Z[s].cidr?' ('+esc(D.Z[s].cidr)+')':''} to <b>${esc(zoneLabel(d))}</b>${D.Z[d].cidr?' ('+esc(D.Z[d].cidr)+')':''}.</p>
+    <p><a class="linkish" id="cell2rules">Open these in the Rules tab</a>${U?' <span class="more">· sorted by hits</span>':''}</p>`+ruleListHTML(U?[...list].sort((a,b)=>b.u.hits-a.u.hits):list);
+  },()=>{const a=$('#cell2rules');if(a)a.onclick=()=>{ruleFilterZone={s,d};closeDrawer();switchTab('rules')}});
+}
+function ruleListHTML(list,extra){
+  return '<ul class="list">'+list.map(r=>`<li>${actionBadge(r)}${enBadge(r)}<a data-rule="${r.i}">${esc(r.name)}</a><span class="more mono">${esc(r.ports.slice(0,4).join(', '))}${r.ports.length>4?' …':''}</span>${usageInline(r)}${extra?extra(r):''}</li>`).join('')+'</ul>';
+}
+
+/* ---------- rules table ---------- */
+function needsAttention(r){return r.enabled&&!isAccepted(r)&&!/^Unhandled /i.test(r.name)&&((r.risk&&(r.risk.level==='high'||r.risk.level==='medium'))||r.uv==='idle'||isTemp(r)||!!r.shadow)}
+function hygieneFlags(r){const f=[];if(HY.logOff&&HY.logOff.includes(r))f.push('logging off');if(HY.noDesc&&HY.noDesc.includes(r))f.push('no description');if(HY.inline&&HY.inline.includes(r))f.push('inline IPs');if(HY.naming&&HY.naming.includes(r))f.push('name');return f}
+function renderRules(){
+  const M=lv('medium'),A=lv('advanced');
+  const q=$('#rq').value.trim().toLowerCase(),qn=ip2n(q);
+  let view=$('#rview').value;if((view==='high'&&!M)||((view==='shadowed'||view==='hygiene')&&!A))view='';
+  const tag=M?$('#rtag').value:'',act=M?$('#ract').value:'',dis=M?$('#rdis').checked:false;
+  let list=D.rules.filter(r=>(dis||r.enabled)&&(!tag||r.tags.includes(tag))&&(!act||r.action===act));
+  if(view==='attention')list=list.filter(needsAttention);
+  if(view==='high')list=list.filter(r=>r.risk&&r.risk.level==='high');
+  if(view==='shadowed')list=list.filter(r=>r.shadow);
+  if(view==='hygiene')list=list.filter(r=>hygieneFlags(r).length);
+  if(ruleFilterZone)list=list.filter(r=>r.fromZones.has(ruleFilterZone.s)&&r.toZones.has(ruleFilterZone.d));
+  if(q)list=list.filter(r=>r.text.includes(q)||(qn!=null&&[...r.fromLeaves,...r.toLeaves].some(l=>l.lo!=null&&l.k!=='any'&&qn>=l.lo&&qn<=l.hi)));
+  if(M){
+    if(U){const us=$('#ruse').value;if(us)list=list.filter(r=>us==='heavy'?r.u.heavy:us==='used'?r.u.hits>0:r.uv===us)}
+    const dc=$('#rdec').value;if(dc)list=list.filter(r=>{const v=getRev(r),st=revState(r);return dc==='none'?!v:dc==='any'?!!v:dc==='accepted'?isAccepted(r):dc==='due'?st==='due'||st==='soon':(v&&v.d===dc)});
+    let so=$('#rsort').value;if(!U&&['hits','bytes','least'].includes(so))so='order';
+    if(so==='risk')list.sort((a,b)=>(b.risk?b.risk.score:0)-(a.risk?a.risk.score:0)||a.i-b.i);
+    else if(so==='hits')list.sort((a,b)=>b.u.hits-a.u.hits||a.i-b.i);else if(so==='bytes')list.sort((a,b)=>b.u.bytes-a.u.bytes||a.i-b.i);else if(so==='least')list.sort((a,b)=>(a.enabled?0:1)-(b.enabled?0:1)||a.u.hits-b.u.hits||a.u.bytes-b.u.bytes||a.i-b.i);
+  }
+  if(M&&CH){const ch=$('#rchg').value;if(ch)list=list.filter(r=>r.chg&&r.chg.type!=='minor'&&(ch==='any'||r.chg.type===ch||(ch==='edited'&&r.chg.type==='toggled')||(ch==='broader'&&(r.chg.impact==='broader'||r.chg.impact==='mixed')&&r.chg.type!=='added')||(ch==='moved'&&!!r.chg.moved)))}
+  $('#rzone').innerHTML=ruleFilterZone?`<span class="badge b-accent">${esc(zoneLabel(ruleFilterZone.s))} → ${esc(zoneLabel(ruleFilterZone.d))} <a class="linkish" id="rzclear" title="Clear zone filter">&times;</a></span>`:'';
+  if(ruleFilterZone)$('#rzclear').onclick=()=>{ruleFilterZone=null;renderRules()};
+  $('#rcount').textContent=`${list.length} of ${D.rules.length} policies`;
+  const head=(M?'<th>#</th>':'')+'<th>Risk</th><th>Action</th><th>Policy</th><th>From</th><th>To</th><th>Ports</th>'+(U?'<th class="uc">Hits</th>'+(M?'<th class="uc">Data</th>':''):'')+(M?'<th>Tags</th>':'');
+  const cells=r=>{
+    const badges=[enBadge(r),U?verdictBadge(r):'',M?decBadge(r):'',M?chgBadge(r):'',A?trendBadge(r):'',A&&r.shadow?`<span class="badge b-grey" title="${esc('Never reached: '+r.shadow.by.name+' (#'+r.shadow.by.i+') above takes all of its traffic')}">Never reached</span>`:''].filter(Boolean).join(' ');
+    const hf=A?hygieneFlags(r).filter(f=>f==='logging off'||f==='name'):[];
+    return (M?`<td class="num">${r.i}</td>`:'')+`<td>${riskBadge(r,A)}</td><td>${actionBadge(r)}</td><td>${esc(r.name)}${badges?'<div class="rbadges">'+badges+'</div>':''}${hf.length?`<div class="more">Tidy-up: ${esc(hf.join(', '))}</div>`:''}</td><td>${chipsHTML(r.from,M?4:3)}</td><td>${chipsHTML(r.to,M?4:3)}</td><td class="mono">${esc(r.ports.slice(0,M?5:3).join(', '))}${r.ports.length>(M?5:3)?' …':''}</td>`+
+      (U?(M?usageCells(r):usageCells(r).replace(/<\/td><td[\s\S]*$/,'</td>')):'')+(M?`<td>${r.tags.map(t=>`<span class="badge b-grey">${esc(t)}</span>`).join(' ')}</td>`:'');
+  };
+  $('#rt').innerHTML='<thead><tr>'+head+'</tr></thead><tbody>'+list.map(r=>`<tr class="r${r.enabled?'':' off'}" data-rule="${r.i}">${cells(r)}</tr>`).join('')+'</tbody>';
+}
+/* ---------- rule detail drawer ---------- */
+function ruleByI(i){return D.rules[i-1]}
+function plainSentence(r){
+  const verb={Allow:'Allows',Proxy:'Allows, through a proxy,',Block:'Blocks'}[r.action]||r.action;
+  const side=cs=>cs.length?cs.slice(0,3).map(c=>c.label).join(', ')+(cs.length>3?` and ${cs.length-3} more`:''):'nothing';
+  return `${verb} ${r.ports.slice(0,4).join(', ')}${r.ports.length>4?' and more':''} from ${side(r.from)} to ${side(r.to)}.${r.enabled?'':' It is switched off.'}`;
+}
+function openRule(i,push){
+  const r=ruleByI(i);if(!r)return;
+  if(!push)drawerStack=[];
+  showDrawer(r.name,()=>{
+    const M=lv('medium'),A=lv('advanced');
+    const ep=c=>`<details class="ep"${M?'':''}><summary>${chipHTML(c)}<span class="more">${c.leaves.length} item${c.leaves.length===1?'':'s'}${c.title?' · '+esc(c.title):''}</span></summary><ul>${c.leaves.map(l=>`<li><span class="mono">${esc(l.t)}</span>${D.ipName[l.t]&&c.kind!=='ip'?' <span class="more">'+esc(D.ipName[l.t])+'</span>':''}<span class="zt">${esc(D.zonesOfLeaf(l).map(zoneLabel).join(', '))}</span></li>`).join('')}</ul></details>`;
+    let h=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${actionBadge(r)}${r.enabled?'<span class="badge b-green">Enabled</span>':'<span class="badge b-grey">Disabled</span>'}${riskBadge(r,A)}${U?verdictBadge(r):''}${M?decBadge(r):''}${A?chgBadge(r)+trendBadge(r):''}${M?r.tags.map(t=>`<span class="badge b-grey">${esc(t)}</span>`).join(''):''}</div>
+      <p class="plain">${esc(plainSentence(r))}</p>`;
+    if(r.risk&&r.risk.reasons.length)h+=`<div class="riskbox"><b>Why it's ${esc(r.risk.level)} risk${A?' ('+r.risk.score+'/100)':''}:</b> ${esc(r.risk.reasons.join(' · '))}</div>`;
+    if(A&&r.shadow)h+=`<div class="riskbox">${r.shadow.same?'<b>Never reached:</b>':'<b>Never applies:</b>'} <a class="linkish" data-rule="${r.shadow.by.i}">${esc(r.shadow.by.name)}</a> (#${r.shadow.by.i}) sits above it and covers all of its traffic${r.shadow.same?', so this policy is redundant.':' with a different action, so this policy’s action never takes effect.'}</div>`;
+    h+=`<dl class="kv">${M?`<dt>Order</dt><dd>#${r.i} <span class="more">(checked top to bottom)</span></dd><dt>Service</dt><dd>${esc(r.service)}${r.proxyType?' <span class="badge b-violet">'+esc(r.proxyType)+'</span>':''}</dd>`:''}<dt>Ports</dt><dd class="mono">${esc(r.ports.join(', '))}</dd>
+      <dt>Zones</dt><dd>${esc([...r.fromZones].map(zoneLabel).join(', '))} → ${esc([...r.toZones].map(zoneLabel).join(', '))}</dd>${usageKV(r)}
+      ${M?`<dt>Schedule</dt><dd>${esc(r.sched||'–')}</dd><dt>Logging</dt><dd>${r.log?'On':'<b style="color:var(--amber)">Off</b>'}</dd><dt>Description</dt><dd>${esc(r.desc||'–')}</dd>`:''}
+      ${A?`<dt>IPS</dt><dd>${r.ips?'On':'Off'}</dd>${r.u0?`<dt>Older usage</dt><dd>${esc(fmtNum(r.u0.hits))} hits in ${esc(CMP.usage.win.label)} (${esc(r.u0.perDay.toFixed(1))}/day)</dd>`:''}`:''}</dl>`;
+    if(M&&CH&&r.chg&&r.chg.type!=='minor')h+=r.chg.type==='added'?`<div class="note">New since ${esc(fmtWhen(CH.oldSaved))}: not in ${esc(CMP.xmlName)}.</div>`:`<h4>Changed since ${esc(fmtWhen(CH.oldSaved))} ${chgBadge(r)} ${impBadge(r.chg)}</h4>${fieldsHTML(r.chg,A)}`;
+    if(M)h+=`<h4>Your review</h4>${reviewEditorHTML(r)}`;
+    h+=`<h4>From</h4>${r.from.map(ep).join('')||'<p class="more">–</p>'}<h4>To</h4>${r.to.map(ep).join('')||'<p class="more">–</p>'}`;
+    if(M){
+      const skip=new Set(['Any','Any-External','Any-Trusted','Any-Optional','Firebox','Any-BOVPN','Any-MUVPN','SSL-VPN','Any-Multicast']);
+      const myRefs=new Set([...r.refsFrom,...r.refsTo].filter(x=>!skip.has(x)));
+      const myHosts=new Set([...r.fromLeaves,...r.toLeaves].filter(l=>l.k==='host'||l.k==='fqdn').map(l=>l.t));
+      const rel=[];
+      for(const o of D.rules){if(o===r)continue;
+        const all=[...new Set([...[...new Set([...o.refsFrom,...o.refsTo])].filter(x=>myRefs.has(x)),...[...o.fromLeaves,...o.toLeaves].filter(l=>myHosts.has(l.t)).map(l=>D.ipName[l.t]||l.t)])];
+        if(all.length)rel.push([o,all]);}
+      rel.sort((a,b)=>b[1].length-a[1].length);
+      h+=`<h4>Related policies (${rel.length})</h4><p class="more" style="margin:0 0 4px">Other policies that use the same aliases or hosts.</p>${rel.length?ruleListHTML(rel.slice(0,A?60:15).map(x=>x[0]),o=>{const s=rel.find(x=>x[0]===o)[1];return `<span class="more">shares ${esc(s.slice(0,3).join(', '))}${s.length>3?' +'+(s.length-3):''}</span>`}):'<p class="more">None.</p>'}`;
+    }
+    return h;
+  });
+}
+function showDrawer(title,bodyFn,after){
+  drawerStack.push({title,bodyFn,after});
+  paintDrawer();
+}
+function paintDrawer(){
+  const top=drawerStack[drawerStack.length-1];
+  $('#dtitle').textContent=top.title;$('#dbody').innerHTML=top.bodyFn();$('#dbody').scrollTop=0;
+  $('#dback').classList.toggle('hidden',drawerStack.length<2);
+  $('#drawer').classList.add('open');$('#drawer').setAttribute('aria-hidden','false');
+  if(top.after)top.after();
+}
+function closeDrawer(){W3.sel=null;$('#drawer').classList.remove('open');$('#drawer').setAttribute('aria-hidden','true');drawerStack=[]}
+
+/* ---------- object lookup (one or many) ---------- */
+let sel=[];            // selected objects, as typed
+let focusIdx=0;        // which selected object the diagram shows
+let cmpShow='all';     // all | diff | shared
+let cmpDir='both';     // both | in | out
+function fillLookupList(){
+  const opts=new Set();
+  D.userAliases.forEach(n=>opts.add(n));
+  Object.keys(D.IF).filter(n=>D.Z['if:'+n]).forEach(n=>opts.add(n));
+  for(const r of D.rules)for(const l of [...r.fromLeaves,...r.toLeaves])if(l.k==='host'||l.k==='fqdn')opts.add(l.t);
+  $('#lq-list').innerHTML=[...opts].sort((a,b)=>a.localeCompare(b)).map(o=>`<option value="${esc(o)}">${D.ipName[o]?esc(D.ipName[o]):''}</option>`).join('');
+}
+function resolveObj(q,broad){
+  let label=q,sub='',inbound=[],outbound=[];
+  const n=ip2n(q);
+  const zoneHit=(r,side,ipn)=>{ // how a rule side matches an IP
+    let best=null;
+    for(const l of (side==='to'?r.toLeaves:r.fromLeaves)){
+      if(l.lo!=null&&l.k!=='any'){if(ipn>=l.lo&&ipn<=l.hi){if(l.k==='host'){return 'direct'}best=best||'subnet'}continue}
+      if(!broad)continue;
+      if(l.k==='any')best=best||'any';
+      if(l.k==='iface'){const zs=D.zonesOfLeaf(l);const myZ=D.zonesOfLeaf({k:'host',lo:ipn,hi:ipn});const z0=D.Z[myZ[0]];
+        if(zs.some(z=>myZ.includes(z)))best=best||'zone';
+        else if(zs.includes('Any-Trusted')&&z0&&z0.kind==='Trusted')best=best||'any';
+        else if(zs.includes('Any-Optional')&&z0&&z0.kind==='Optional')best=best||'any';
+        else if(zs.includes('Any'))best=best||'any';}
+    }
+    if(best==='subnet'&&!broad){const l=(side==='to'?r.toLeaves:r.fromLeaves).find(l=>l.lo!=null&&ipn>=l.lo&&ipn<=l.hi);if(l&&l.hi-l.lo>255)return null}
+    return best;
+  };
+  if(D.AL[q]||D.IF[q]){
+    inbound=D.rules.filter(r=>r.refsTo.has(q)).map(r=>[r,'direct']);
+    outbound=D.rules.filter(r=>r.refsFrom.has(q)).map(r=>[r,'direct']);
+    const lv=D.aliasLeaves(q);sub=(D.AL[q]&&D.AL[q].desc?D.AL[q].desc+' · ':'')+lv.slice(0,4).map(l=>l.t).join(', ')+(lv.length>4?' …':'');
+    const usedBy=D.namedAliases.filter(a=>a!==q&&D.AL[a]&&D.AL[a].members.some(m=>m['alias-name']===q));
+    if(usedBy.length)sub+=`  ·  member of: ${usedBy.slice(0,4).join(', ')}${usedBy.length>4?' …':''}`;
+    return {q,label,sub,inbound,outbound};
+  }
+  if(n!=null){
+    label=D.ipName[q]?D.ipName[q]:q;sub=(D.ipName[q]?q+' · ':'')+D.zonesOfLeaf({k:'host',lo:n,hi:n}).map(zoneLabel).join(', ');
+    for(const r of D.rules){const a=zoneHit(r,'to',n);if(a)inbound.push([r,a]);const b=zoneHit(r,'from',n);if(b)outbound.push([r,b])}
+    return {q,label,sub,inbound,outbound};
+  }
+  const ql=q.toLowerCase();
+  const fqAll=[...new Set(D.rules.flatMap(r=>[...r.fromLeaves,...r.toLeaves]).filter(l=>l.k==='fqdn').map(l=>l.t))];
+  const exact=fqAll.filter(f=>f.toLowerCase()===ql);   // same name in different capitals counts as one
+  if(exact.length){
+    const has=leaves=>leaves.some(l=>l.k==='fqdn'&&l.t.toLowerCase()===ql);
+    return {q,label:exact[0],sub:'Name only (FQDN)'+(exact.length>1?' · '+exact.length+' spellings':''),
+      inbound:D.rules.filter(r=>has(r.toLeaves)).map(r=>[r,'direct']),outbound:D.rules.filter(r=>has(r.fromLeaves)).map(r=>[r,'direct'])};
+  }
+  const ali=Object.keys(D.AL).concat(Object.keys(D.IF)).find(a=>a.toLowerCase()===ql);
+  if(ali)return resolveObj(ali,broad);
+  const hits=D.userAliases.filter(a=>a.toLowerCase().includes(ql)).slice(0,30);
+  const fq=fqAll.filter(f=>f.toLowerCase().includes(ql));
+  if(fq.length===1&&!hits.length)return resolveObj(fq[0],broad);
+  return {q,error:true,suggest:[...new Set([...hits,...fq])].slice(0,30)};
+}
+function addToSelection(text){
+  const items=String(text).split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
+  if(maxSel()===1){if(items.length)sel=[items[items.length-1]]}
+  else for(const it of items){if(sel.length>=maxSel())break;if(!sel.some(s=>s.toLowerCase()===it.toLowerCase()))sel.push(it)}
+  $('#lq').value='';saveSel();lookup();
+}
+function saveSel(){store.set('fwmap.sel',JSON.stringify(sel))}
+function renderSel(){
+  $('#lsel').innerHTML=sel.length?sel.map((s,i)=>`<span class="selchip"><b>${i+1}</b>${esc(s)}<button title="Remove ${esc(s)}" data-remove="${i}">&times;</button></span>`).join('')+
+    (sel.length>=maxSel()&&maxSel()>1?`<span class="more">Up to ${maxSel()} at a time.</span>`:''):'<span class="more">Nothing selected yet.</span>';
+}
+function lookup(){
+  const broad=$('#lbroad').checked;
+  renderSel();
+  if(!sel.length){$('#lout').innerHTML='';return}
+  const res=sel.map(q=>resolveObj(q,broad));
+  const bad=res.map((r,i)=>[r,i]).filter(([r])=>r.error);
+  const ok=res.filter(r=>!r.error);
+  let h=bad.map(([r,i])=>`<div class="card" style="margin-bottom:12px"><p style="margin-top:0">No exact match for <b>${esc(r.q)}</b>.${r.suggest.length?' Did you mean:':''}</p>${r.suggest.length?`<ul class="list">${r.suggest.map(s=>`<li><a data-swap="${i}" data-val="${esc(s)}">${esc(s)}</a></li>`).join('')}</ul>`:'<p class="more">Nothing similar found.</p>'}</div>`).join('');
+  if(focusIdx>=ok.length)focusIdx=0;
+  if(ok.length===1){
+    const o=ok[0];
+    h+=lookupSVG(o.label,o.sub,o.inbound,o.outbound)+inOutLists(o);
+  }else if(ok.length>1){
+    h+=compareHTML(ok)+`<h4>Diagram for ${esc(ok[focusIdx].label)}</h4>`+lookupSVG(ok[focusIdx].label,ok[focusIdx].sub,ok[focusIdx].inbound,ok[focusIdx].outbound);
+  }
+  $('#lout').innerHTML=h;
+  const cs=$('#cmp-show'),cd=$('#cmp-dir');
+  if(cs)cs.onchange=()=>{cmpShow=cs.value;lookup()};
+  if(cd)cd.onchange=()=>{cmpDir=cd.value;lookup()};
+}
+function inOutLists(o){
+  return `<div class="cols" style="margin-top:12px"><div class="card"><h4 style="margin-top:0">Into ${esc(o.label)} (${o.inbound.length})</h4>${o.inbound.length?ruleListHTML(o.inbound.map(x=>x[0]),r=>hitBadge(o.inbound,r)):'<p class="more">No policies.</p>'}</div><div class="card"><h4 style="margin-top:0">Out of ${esc(o.label)} (${o.outbound.length})</h4>${o.outbound.length?ruleListHTML(o.outbound.map(x=>x[0]),r=>hitBadge(o.outbound,r)):'<p class="more">No policies.</p>'}</div></div>`;
+}
+function compareHTML(objs){
+  // mark per policy per object
+  const idx=new Map();
+  const mark=(o,r)=>{const i=o.inbound.find(x=>x[0]===r),u=o.outbound.find(x=>x[0]===r);return {in:i?i[1]:null,out:u?u[1]:null}};
+  for(const o of objs)for(const [r] of [...o.inbound,...o.outbound])idx.set(r.i,r);
+  let rows=[...idx.values()].map(r=>{
+    const m=objs.map(o=>mark(o,r));
+    const key=x=>(cmpDir!=='out'&&x.in?'I':'')+(cmpDir!=='in'&&x.out?'O':'');
+    const keys=m.map(key);
+    return {r,m,keys,n:keys.filter(Boolean).length};
+  }).filter(x=>x.n>0);
+  const total=rows.length,shared=rows.filter(x=>x.keys.every(k=>k&&k===x.keys[0])).length;
+  if(cmpShow==='diff')rows=rows.filter(x=>!x.keys.every(k=>k===x.keys[0]));
+  if(cmpShow==='shared')rows=rows.filter(x=>x.keys.every(k=>k&&k===x.keys[0]));
+  rows.sort((a,b)=>b.n-a.n||a.r.i-b.r.i);
+  const cell=x=>{
+    const b=[];
+    if(cmpDir!=='out'&&x.in)b.push(`<span class="badge b-accent" title="Policy lets traffic into this object">In</span>${x.in!=='direct'?viaTag(x.in):''}`);
+    if(cmpDir!=='in'&&x.out)b.push(`<span class="badge b-green" title="Policy lets traffic out of this object">Out</span>${x.out!=='direct'?viaTag(x.out):''}`);
+    return b.join(' ');
+  };
+  const cards=`<div class="cmp-cards">${objs.map((o,i)=>`<div class="card cmp-card${i===focusIdx?' on':''}"><div class="cmp-h"><b class="cmp-n">${sel.indexOf(o.q)+1}</b><span class="cmp-t" title="${esc(o.label)}">${esc(o.label)}</span></div><div class="more" title="${esc(o.sub)}">${esc(trunc(o.sub,80))}</div><div class="cmp-c"><span class="badge b-accent">${o.inbound.length} in</span><span class="badge b-green">${o.outbound.length} out</span>${U?`<span class="more" title="Total hits on the policies that touch this object">${esc(fmtNum([...new Set([...o.inbound,...o.outbound].map(x=>x[0]))].reduce((s2,r)=>s2+(r.u?r.u.hits:0),0)))} hits</span>`:''}<a class="linkish" data-focus="${i}">${i===focusIdx?'Diagram shown below':'Show diagram'}</a></div></div>`).join('')}</div>`;
+  const tb=`<div class="toolbar" style="margin-top:12px"><label>Show <select id="cmp-show"><option value="all"${cmpShow==='all'?' selected':''}>All policies</option><option value="diff"${cmpShow==='diff'?' selected':''}>Only differences</option><option value="shared"${cmpShow==='shared'?' selected':''}>Only policies they all share</option></select></label>
+    <label>Direction <select id="cmp-dir"><option value="both"${cmpDir==='both'?' selected':''}>In and out</option><option value="in"${cmpDir==='in'?' selected':''}>Into only</option><option value="out"${cmpDir==='out'?' selected':''}>Out of only</option></select></label>
+    <span class="more">${total} policies touch at least one · ${shared} the same for all · ${total-shared} differ</span></div>`;
+  const table=`<div class="rt-wrap"><table class="rt cmp"><thead><tr><th>#</th><th>Policy</th><th>Ports</th>${U?'<th class="uc">Hits</th><th class="uc">Data</th>':''}${objs.map(o=>`<th class="c" title="${esc(o.label)}"><b class="cmp-n">${sel.indexOf(o.q)+1}</b> ${esc(trunc(o.label,22))}</th>`).join('')}</tr></thead><tbody>${
+    rows.length?rows.map(x=>`<tr class="r${x.r.enabled?'':' off'}${x.keys.every(k=>k===x.keys[0])?' same':''}" data-rule="${x.r.i}"><td class="num">${x.r.i}</td><td>${actionBadge(x.r)} ${enBadge(x.r)} ${esc(x.r.name)}</td><td class="mono">${esc(x.r.ports.slice(0,3).join(', '))}${x.r.ports.length>3?' …':''}</td>${U?usageCells(x.r):''}${x.m.map(m=>`<td class="c">${cell(m)}</td>`).join('')}</tr>`).join('')
+    :`<tr><td colspan="${(U?5:3)+objs.length}" class="more" style="padding:14px">No policies match this filter.</td></tr>`}</tbody></table></div>`;
+  return cards+tb+table;
+}
+function viaTag(h){return ` <span class="via">${h==='any'?'via Any':h==='zone'?'via VLAN':'via subnet'}</span>`}
+function hitBadge(arr,r){const h=arr.find(x=>x[0]===r)[1];return h==='direct'?'':`<span class="badge ${h==='any'?'b-amber':'b-grey'}">${h==='any'?'via Any':h==='zone'?'via its VLAN':'via subnet'}</span>`}
+function trunc(s,n){s=String(s);return s.length>n?s.slice(0,n-1)+'…':s}
+function lookupSVG(label,sub,inb,outb){
+  const W=1180,bw=360,bh=44,gap=8,cx=W/2,cw=300,top=34;
+  const rows=Math.max(inb.length,outb.length,1);const H=top+rows*(bh+gap)+20;
+  const ch=Math.max(70,Math.min(H-top-20,120));const cy=top+(Math.min(rows,10)*(bh+gap))/2-ch/2;const cyMid=Math.max(top,cy)+ch/2;
+  const col=r=>r.enabled?({Allow:'var(--green)',Proxy:'var(--violet)',Block:'var(--red)'}[r.action]||'var(--grey)'):'var(--faint)';
+  const other=(r,side)=>(side==='in'?r.from:r.to).map(c=>c.label).join(', ');
+  let s=`<svg class="lk-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Policies into and out of ${esc(label)}">`;
+  s+=`<text x="${bw/2}" y="18" text-anchor="middle" class="sub" style="font-size:12px">INTO · from these sources</text><text x="${W-bw/2}" y="18" text-anchor="middle" class="sub" style="font-size:12px">OUT OF · to these destinations</text>`;
+  const box=(r,x,y,side,hit)=>{const c=col(r);
+    return `<g class="rb" data-rule="${r.i}"><rect class="box" x="${x}" y="${y}" width="${bw}" height="${bh}" rx="6"${r.enabled?'':' stroke-dasharray="4 3"'}/><rect x="${side==='in'?x:x+bw-4}" y="${y}" width="4" height="${bh}" fill="${c}" rx="2"/>
+    <text x="${x+12}" y="${y+18}" style="font-size:13px;font-weight:600">${esc(trunc(r.name,U?36:46))}</text>${U&&r.u&&!r.u.none?`<text x="${x+bw-10}" y="${y+18}" text-anchor="end" style="font-size:12px;font-weight:600;fill:${r.u.hits?'var(--accent)':'var(--amber)'}">${r.u.hits?esc(fmtNum(r.u.hits))+' hits':'no traffic'}</text>`:''}
+    <text x="${x+12}" y="${y+35}" class="sub">${esc(trunc((side==='in'?'from ':'to ')+other(r,side)+' · '+r.ports.join(', '),62))}${hit&&hit!=='direct'?esc(hit==='any'?'  [via Any]':'  [via VLAN]'):''}</text><title>${esc(r.name)}\n${esc((side==='in'?'From: ':'To: ')+other(r,side))}\n${esc(r.ports.join(', '))}</title></g>`};
+  inb.forEach(([r,h],k)=>{const y=top+k*(bh+gap);s+=`<path d="M${bw} ${y+bh/2} C ${bw+80} ${y+bh/2}, ${cx-cw/2-80} ${cyMid}, ${cx-cw/2} ${cyMid}" fill="none" stroke="${col(r)}" stroke-opacity=".55" stroke-width="1.5"${r.enabled?'':' stroke-dasharray="4 3"'}/>`+box(r,0,y,'in',h)});
+  outb.forEach(([r,h],k)=>{const y=top+k*(bh+gap);s+=`<path d="M${cx+cw/2} ${cyMid} C ${cx+cw/2+80} ${cyMid}, ${W-bw-80} ${y+bh/2}, ${W-bw} ${y+bh/2}" fill="none" stroke="${col(r)}" stroke-opacity=".55" stroke-width="1.5"${r.enabled?'':' stroke-dasharray="4 3"'}/>`+box(r,W-bw,y,'out',h)});
+  s+=`<rect class="ctr" x="${cx-cw/2}" y="${cyMid-ch/2}" width="${cw}" height="${ch}" rx="10"/><text x="${cx}" y="${cyMid-6}" text-anchor="middle" style="font:600 17px var(--display)">${esc(trunc(label,30))}</text><text x="${cx}" y="${cyMid+14}" text-anchor="middle" class="sub">${esc(trunc(sub,48))}</text><text x="${cx}" y="${cyMid+32}" text-anchor="middle" class="sub">${inb.length} in · ${outb.length} out</text>`;
+  if(!inb.length)s+=`<text x="${bw/2}" y="${top+26}" text-anchor="middle" class="sub">No policies</text>`;
+  if(!outb.length)s+=`<text x="${W-bw/2}" y="${top+26}" text-anchor="middle" class="sub">No policies</text>`;
+  return `<div class="card" style="padding:10px">${s}</svg><div class="legend"><span><span class="zk" style="background:var(--green)"></span>Allow</span><span><span class="zk" style="background:var(--violet)"></span>Proxy</span><span><span class="zk" style="background:var(--red)"></span>Block</span><span>Dashed = disabled. Click a box for the policy.</span></div></div>`;
+}
+
+/* ---------- relationship web (3D, canvas, no libraries) ---------- */
+const W3={g:0.25,cut:4,nodes:[],edges:[],rotY:0.6,rotX:-0.3,zoom:1,running:false,raf:0,iter:0,maxIter:320,temp:0,k:30,radius:200,
+  hover:null,sel:null,drag:null,built:false,last:0,cw:0,ch:0,ctx:null,nb:null};
+const BROAD=new Set(['Any','Any-Trusted','Any-Optional']);
+const reduceMotion=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function seeded(seed){return ()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function kindVar(kind){return {broad:'--amber',identity:'--violet',vpn:'--violet',Trusted:'--green',Optional:'--accent',Custom:'--grey',External:'--red',external:'--red',internal:'--grey',firebox:'--ink',policy:'--muted'}[kind]||'--grey'}
+const KIND_TEXT={broad:'Broad alias',identity:'Authenticated users',vpn:'VPN',Trusted:'Trusted VLAN',Optional:'Optional VLAN',Custom:'Custom zone',External:'External',external:'External',internal:'Internal (other)',firebox:'Firebox',policy:'Policy'};
+
+function buildWeb(){
+  if(!D)return;
+  let level=lv('medium')?$('#w-level').value:'zones';if(level==='policies'&&!lv('advanced'))level='objects';
+  const inclDis=lv('advanced')&&$('#w-dis').checked,hideBroad=lv('medium')?$('#w-broad').checked:true;
+  const rules=D.rules.filter(r=>inclDis||r.enabled);
+  const N=new Map(),E=new Map();
+  const node=(id,label,kind,extra)=>{let n=N.get(id);if(!n){n=Object.assign({id,label,kind,rules:new Set(),deg:0,selfRules:0},extra||{});N.set(id,n)}return n};
+  const edge=(a,b,r)=>{if(a===b)return;const k=a.id+'\u0001'+b.id;let e=E.get(k);if(!e){e={s:a,t:b,rules:[]};E.set(k,e)}if(!e.rules.includes(r))e.rules.push(r);a.rules.add(r);b.rules.add(r)};
+  const chipNode=c=>{
+    const id=c.ref||c.label;if(hideBroad&&BROAD.has(id))return null;
+    const z=c.leaves.length?D.zonesOfLeaf(c.leaves[0])[0]:'Any';
+    const kind=id==='Any-External'?'external':c.kind==='any'?'broad':c.kind==='user'?'identity':(D.Z[z]?D.Z[z].kind:'internal');
+    return node('o:'+id,c.label,kind,{look:c.ref||(c.leaves[0]&&c.leaves[0].lo!=null?c.leaves[0].t:c.label),zone:z});
+  };
+  if(level==='zones'){
+    for(const r of rules)for(const s of r.fromZones)for(const d of r.toZones){
+      if(hideBroad&&(BROAD.has(s)||BROAD.has(d)))continue;
+      const a=node('z:'+s,zoneLabel(s),D.Z[s].kind,{cidr:D.Z[s].cidr,zone:s}),b=node('z:'+d,zoneLabel(d),D.Z[d].kind,{cidr:D.Z[d].cidr,zone:d});
+      if(s===d){a.rules.add(r);a.selfRules++}else edge(a,b,r);
+    }
+  }else if(level==='objects'){
+    for(const r of rules){const fs=r.from.map(chipNode).filter(Boolean),ts=r.to.map(chipNode).filter(Boolean);for(const a of fs)for(const b of ts)edge(a,b,r)}
+  }else{
+    for(const r of rules){
+      const fs=r.from.map(chipNode).filter(Boolean),ts=r.to.map(chipNode).filter(Boolean);
+      if(!fs.length&&!ts.length)continue;
+      const p=node('p:'+r.i,r.name,'policy',{rule:r});p.rules.add(r);
+      fs.forEach(a=>edge(a,p,r));ts.forEach(b=>edge(p,b,r));
+    }
+  }
+  let nodes=[...N.values()],edges=[...E.values()];
+  // focus on one node and its neighbours
+  const fq=lv('medium')?$('#w-focus').value.trim().toLowerCase():'',hops=+$('#w-hops').value;
+  let focus=null,msg='';
+  if(fq){
+    focus=nodes.find(n=>n.label.toLowerCase()===fq)||nodes.find(n=>String(n.look||'').toLowerCase()===fq)||nodes.find(n=>n.label.toLowerCase().includes(fq));
+    if(focus){
+      const nb=new Map(nodes.map(n=>[n,[]]));edges.forEach(e=>{nb.get(e.s).push(e.t);nb.get(e.t).push(e.s)});
+      const keep=new Set([focus]);let fr=[focus];
+      for(let h=0;h<hops;h++){const nx=[];for(const n of fr)for(const m of nb.get(n))if(!keep.has(m)){keep.add(m);nx.push(m)}fr=nx}
+      nodes=nodes.filter(n=>keep.has(n));edges=edges.filter(e=>keep.has(e.s)&&keep.has(e.t));
+    }else msg=`Nothing called "${$('#w-focus').value.trim()}" at this level, so the whole web is shown.`;
+  }
+  nodes.forEach(n=>n.deg=0);edges.forEach(e=>{e.s.deg++;e.t.deg++});
+  nodes=nodes.filter(n=>n.deg>0||n===focus||n.selfRules);
+  // neighbour index for highlighting
+  const nbIn=new Map(),nbOut=new Map();nodes.forEach(n=>{nbIn.set(n,new Set());nbOut.set(n,new Set())});
+  edges.forEach(e=>{nbOut.get(e.s).add(e.t);nbIn.get(e.t).add(e.s)});
+  // initial positions: seeded, so the same export gives the same picture
+  const rnd=seeded(nodes.length*7919+edges.length);
+  W3.k=Math.max(18,260/Math.cbrt(nodes.length+1))*(level==='zones'?2:1);
+  nodes.forEach(n=>{const u=rnd()*2-1,th=rnd()*Math.PI*2,rr=120*Math.cbrt(rnd());const s=Math.sqrt(1-u*u);n.x=rr*s*Math.cos(th);n.y=rr*s*Math.sin(th);n.z=rr*u});
+  if(focus){focus.x=focus.y=focus.z=0;focus.pinned=true}
+  Object.assign(W3,{nodes,edges,nbIn,nbOut,focus,iter:0,temp:60,hover:null,sel:null,built:true,level});
+  const maxDeg=Math.max(1,...nodes.map(n=>n.rules.size));
+  nodes.forEach(n=>n.r=n.kind==='policy'?3.5:3+9*Math.sqrt(n.rules.size/maxDeg));
+  const top=[...nodes].sort((a,b)=>b.rules.size-a.rules.size);
+  W3.labelSet=new Set(top.slice(0,level==='zones'?60:14));
+  $('#w-stats').textContent=`${nodes.length} nodes · ${edges.length} links${focus?' · focused on '+focus.label:''}`;
+  $('#w-msg').textContent=msg;$('#w-msg').classList.toggle('hidden',!msg);
+  fillWebList(N);
+  W3.radius=150;
+  applyWebWeights();
+}
+function applyWebWeights(){
+  if(!W3.built)return;
+  const m=U?(lv('medium')?$('#w-weigh').value:'hits'):'count';
+  const val=rs=>{let s=0;for(const r of rs){if(m==='count')s++;else if(r.u)s+=m==='hits'?r.u.hits:r.u.bytes}return s};
+  for(const e of W3.edges){e.w=val(e.rules);e.traffic=U?e.rules.reduce((s,r)=>s+(r.u?r.u.hits:0),0):0;e.idle=!!U&&e.traffic===0;if(e.seed==null)e.seed=Math.random()}
+  let maxW=1;for(const e of W3.edges)maxW=Math.max(maxW,e.w);
+  for(const e of W3.edges)e.wn=m==='count'?Math.min(1,Math.log2(1+e.w)/Math.log2(1+maxW)):Math.log10(1+e.w)/Math.log10(1+maxW);
+  for(const n of W3.nodes){const rs=[...n.rules];n.wv=val(rs);n.traffic=U?{hits:rs.reduce((s,r)=>s+(r.u?r.u.hits:0),0),bytes:rs.reduce((s,r)=>s+(r.u?r.u.bytes:0),0)}:null}
+  let maxN=1;for(const n of W3.nodes)maxN=Math.max(maxN,n.wv);
+  for(const n of W3.nodes){const f=m==='count'?Math.sqrt(n.wv/maxN):Math.log10(1+n.wv)/Math.log10(1+maxN);n.r=n.kind==='policy'?(m==='count'?3.5:2+6*Math.pow(f,2.5)):(m==='count'?3+9*f:2.2+10*Math.pow(f,2.5))}
+  W3.labelSet=new Set([...W3.nodes].sort((a,b)=>b.wv-a.wv).slice(0,W3.level==='zones'?60:14));
+}
+function fillWebList(N){
+  const labels=[...new Set([...N.values()].map(n=>n.label))].sort((a,b)=>a.localeCompare(b));
+  $('#w-list').innerHTML=labels.map(l=>`<option value="${esc(l)}">`).join('');
+}
+function simStep(){
+  const ns=W3.nodes,n=ns.length,k2=W3.k*W3.k;
+  for(const a of ns){a.dx=0;a.dy=0;a.dz=0}
+  const cut2=W3.cut*W3.cut*k2;
+  for(let i=0;i<n;i++){const a=ns[i];for(let j=i+1;j<n;j++){const b=ns[j];
+    const dx=a.x-b.x,dy=a.y-b.y,dz=a.z-b.z,d2=dx*dx+dy*dy+dz*dz;if(d2>cut2)continue;const f=k2/(d2+0.01);
+    a.dx+=dx*f;a.dy+=dy*f;a.dz+=dz*f;b.dx-=dx*f;b.dy-=dy*f;b.dz-=dz*f}}
+  for(const e of W3.edges){const a=e.s,b=e.t;const dx=a.x-b.x,dy=a.y-b.y,dz=a.z-b.z;
+    const d=Math.sqrt(dx*dx+dy*dy+dz*dz)+0.01;const f=d/W3.k*(1+0.35*Math.log(e.rules.length));
+    a.dx-=dx*f;a.dy-=dy*f;a.dz-=dz*f;b.dx+=dx*f;b.dy+=dy*f;b.dz+=dz*f}
+  const T=W3.temp;let R=1;
+  for(const a of ns){
+    a.dx-=a.x*W3.g;a.dy-=a.y*W3.g;a.dz-=a.z*W3.g;   // pull to the centre keeps separate groups close
+    if(a.pinned){a.x=a.y=a.z=0;continue}
+    const l=Math.sqrt(a.dx*a.dx+a.dy*a.dy+a.dz*a.dz)+1e-9,m=Math.min(l,T);
+    a.x+=a.dx/l*m;a.y+=a.dy/l*m;a.z+=a.dz/l*m;
+  }
+  // fit the view to where most nodes are (95th percentile), so a few outliers don't shrink everything
+  const ds=ns.map(a=>Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z)).sort((x,y)=>x-y);R=Math.max(1,ds[Math.floor((ds.length-1)*0.95)]||1);
+  W3.temp=Math.max(0.6,T*0.975);W3.iter++;
+  W3.radius=W3.iter<5?R:W3.radius*0.85+R*0.15;
+}
+function startWeb(){
+  if(W3.running)return;W3.running=true;W3.last=performance.now();
+  const loop=t=>{if(!W3.running)return;const dt=Math.min(0.05,(t-W3.last)/1000);W3.last=t;
+    const t0=performance.now();while(W3.iter<W3.maxIter&&performance.now()-t0<10)simStep();
+    if($('#w-rot').checked&&!W3.drag&&!W3.hover)W3.rotY+=dt*0.25*(lv('advanced')?+$('#w-speed').value:1);
+    drawWeb();W3.raf=requestAnimationFrame(loop)};
+  W3.raf=requestAnimationFrame(loop);
+}
+function stopWeb(){W3.running=false;cancelAnimationFrame(W3.raf)}
+function project(){
+  const c=$('#w-canvas'),w=W3.cw,h=W3.ch;
+  const cy=Math.cos(W3.rotY),sy=Math.sin(W3.rotY),cx=Math.cos(W3.rotX),sx=Math.sin(W3.rotX);
+  const R=Math.max(40,W3.radius),scale=Math.min(w,h)*0.47/R*W3.zoom,cam=R*3.2;
+  for(const n of W3.nodes){
+    const x1=n.x*cy-n.z*sy,z1=n.x*sy+n.z*cy,y1=n.y*cx-z1*sx,z2=n.y*sx+z1*cx;
+    const p=cam/(cam-z2);n.px=w/2+x1*scale*p;n.py=h/2+y1*scale*p;n.pz=z2;n.pp=p;
+    n.depth=Math.max(0,Math.min(1,(z2+R)/(2*R)));
+  }
+}
+function sizeCanvas(){
+  const c=$('#w-canvas'),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  if(Math.round(r.width*dpr)!==c.width||Math.round(r.height*dpr)!==c.height){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr)}
+  W3.cw=r.width;W3.ch=r.height;W3.ctx=c.getContext('2d');W3.ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function drawWeb(){
+  sizeCanvas();if(!W3.cw)return;
+  const ctx=W3.ctx,w=W3.cw,h=W3.ch;
+  const col={bg:cssv('--surface'),ink:cssv('--ink'),line:cssv('--muted'),inC:cssv('--accent'),outC:cssv('--green'),red:cssv('--red'),faint:cssv('--faint'),amber:cssv('--amber'),flow:cssv('--accent')};
+  ctx.fillStyle=col.bg;ctx.fillRect(0,0,w,h);
+  project();
+  const act=W3.sel||W3.hover;
+  const lit=act?new Set([act,...W3.nbIn.get(act),...W3.nbOut.get(act)]):null;
+  // links
+  ctx.lineCap='round';
+  for(const e of W3.edges){
+    const a=e.s,b=e.t,d=(a.depth+b.depth)/2;let stroke=col.line,alpha=0.10+0.22*d,lw=(0.6+2.6*(e.wn||0))*((a.pp+b.pp)/2);let dash=false;
+    if(act){if(a===act){stroke=col.outC;alpha=0.95;lw+=0.8}else if(b===act){stroke=col.inC;alpha=0.95;lw+=0.8}else alpha*=0.25}
+    else if(e.rules.some(r=>r.action==='Block')){stroke=col.red}
+    else if(e.idle&&lv('advanced')&&$('#w-idle').checked){stroke=col.amber;alpha=0.35+0.3*d;dash=true}
+    ctx.setLineDash(dash?[4,4]:[]);ctx.globalAlpha=alpha;ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(a.px,a.py);ctx.lineTo(b.px,b.py);ctx.stroke();
+    if(act&&(a===act||b===act)){ // small arrow head showing direction
+      const mx=a.px+(b.px-a.px)*0.62,my=a.py+(b.py-a.py)*0.62,ang=Math.atan2(b.py-a.py,b.px-a.px),s=5+lw;
+      ctx.fillStyle=stroke;ctx.beginPath();ctx.moveTo(mx+Math.cos(ang)*s,my+Math.sin(ang)*s);ctx.lineTo(mx+Math.cos(ang+2.5)*s,my+Math.sin(ang+2.5)*s);ctx.lineTo(mx+Math.cos(ang-2.5)*s,my+Math.sin(ang-2.5)*s);ctx.closePath();ctx.fill();
+    }
+  }
+  ctx.setLineDash([]);
+  // traffic flow: dots travel from source to destination; more dots = more hits (log scale)
+  if(U&&$('#w-flow').checked){
+    const now=performance.now()/1000;
+    for(const e of W3.edges){
+      if(!e.traffic)continue;const a=e.s,b=e.t;
+      if(act&&a!==act&&b!==act)continue;
+      const n=Math.min(6,1+Math.floor(Math.log10(e.traffic))),sp=0.10+0.04*n,sz=(1.6+1.6*(e.wn||0))*((a.pp+b.pp)/2);
+      ctx.globalAlpha=act?0.95:0.3+0.55*((a.depth+b.depth)/2);
+      ctx.fillStyle=act?(a===act?col.outC:col.inC):col.flow;
+      for(let k=0;k<n;k++){const f=(now*sp+k/n+e.seed)%1;ctx.beginPath();ctx.arc(a.px+(b.px-a.px)*f,a.py+(b.py-a.py)*f,sz,0,Math.PI*2);ctx.fill()}
+    }
+  }
+  // nodes, far to near
+  const order=[...W3.nodes].sort((a,b)=>a.pz-b.pz);
+  for(const n of order){
+    const r=n.r*n.pp*(n===act?1.35:1);
+    ctx.globalAlpha=lit&&!lit.has(n)?0.12:(0.45+0.55*n.depth);
+    ctx.fillStyle=cssv(kindVar(n.kind));ctx.strokeStyle=col.bg;ctx.lineWidth=1.2;
+    ctx.beginPath();
+    if(n.kind==='policy')ctx.rect(n.px-r,n.py-r,r*2,r*2);else ctx.arc(n.px,n.py,r,0,Math.PI*2);
+    ctx.fill();ctx.stroke();
+    if(n===act||n===W3.focus){ctx.globalAlpha=1;ctx.strokeStyle=col.ink;ctx.lineWidth=2;ctx.beginPath();ctx.arc(n.px,n.py,r+3,0,Math.PI*2);ctx.stroke()}
+  }
+  // labels
+  const all=lv('medium')&&$('#w-labels').checked;
+  ctx.font=`12px ${cssv('--ui')}`;ctx.textBaseline='middle';ctx.lineJoin='round';
+  // nearest first, the selected node first of all; skip a label that would overlap one already placed
+  const placed=[],ui=cssv('--ui');
+  const cand=order.filter(n=>lit?lit.has(n):(all||W3.labelSet.has(n)||n===W3.focus)).reverse();
+  if(act){cand.splice(cand.indexOf(act),1);cand.unshift(act)}
+  for(const n of cand){
+    const txt=trunc(n.label,34);
+    ctx.font=`${n===act?'600 13px':'12px'} ${ui}`;
+    const x=n.px+n.r*n.pp+5,y=n.py,tw=ctx.measureText(txt).width;
+    const box={l:x-2,r:x+tw+2,t:y-8,b:y+8};
+    if(n!==act&&placed.some(o=>box.l<o.r&&box.r>o.l&&box.t<o.b&&box.b>o.t))continue;
+    placed.push(box);
+    ctx.globalAlpha=lit?1:(0.55+0.45*n.depth);
+    ctx.lineWidth=3.5;ctx.strokeStyle=col.bg;ctx.strokeText(txt,x,y);
+    ctx.fillStyle=col.ink;ctx.fillText(txt,x,y);
+  }
+  ctx.globalAlpha=1;
+  if(W3.iter<W3.maxIter){ctx.fillStyle=col.faint;ctx.font=`12px ${cssv('--ui')}`;ctx.fillText(`Arranging… ${Math.round(W3.iter/W3.maxIter*100)}%`,12,h-14)}
+}
+function webHit(x,y){
+  let best=null;
+  for(const n of W3.nodes){const r=n.r*n.pp+4;const dx=n.px-x,dy=n.py-y;if(dx*dx+dy*dy<=r*r&&(!best||n.pz>best.pz))best=n}
+  return best;
+}
+function webTip(n,x,y){
+  const t=$('#w-tip');
+  if(!n){t.classList.add('hidden');return}
+  const ins=W3.nbIn.get(n).size,outs=W3.nbOut.get(n).size;
+  t.innerHTML=`<b>${esc(n.label)}</b><br><span>${esc(KIND_TEXT[n.kind]||n.kind)}${n.cidr?' · '+esc(n.cidr):''}</span><br><span>${n.rules.size} polic${n.rules.size===1?'y':'ies'} · ${ins} in · ${outs} out${n.selfRules?' · '+n.selfRules+' within zone':''}</span>${U&&n.traffic?`<br><span>${esc(fmtNum(n.traffic.hits))} hits · ${esc(fmtBytes(n.traffic.bytes))}</span>`:''}`;
+  t.classList.remove('hidden');
+  const st=$('#w-stage').getBoundingClientRect();
+  t.style.left=Math.min(x+14,st.width-t.offsetWidth-8)+'px';t.style.top=Math.max(8,y-t.offsetHeight-10)+'px';
+}
+function openWebNode(n){
+  if(n.kind==='policy'){openRule(n.rule.i);return}
+  drawerStack=[];
+  showDrawer(n.label,()=>{
+    const rs=[...n.rules].sort((a,b)=>U?(b.u.hits-a.u.hits)||a.i-b.i:a.i-b.i);
+    const nbList=(set,arrow)=>[...set].sort((a,b)=>a.label.localeCompare(b.label)).slice(0,60).map(m=>`<li><span class="more">${arrow}</span><a data-wfocus="${esc(m.label)}">${esc(m.label)}</a><span class="more">${esc(KIND_TEXT[m.kind]||'')}</span></li>`).join('');
+    const ins=W3.nbIn.get(n),outs=W3.nbOut.get(n);
+    return `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span class="badge b-accent">${esc(KIND_TEXT[n.kind]||n.kind)}</span>${n.cidr?`<span class="badge b-grey">${esc(n.cidr)}</span>`:''}</div>
+      <dl class="kv"><dt>Policies</dt><dd>${rs.length}${n.selfRules?' (including '+n.selfRules+' within the zone)':''}</dd><dt>Traffic in from</dt><dd>${ins.size} node${ins.size===1?'':'s'}</dd><dt>Traffic out to</dt><dd>${outs.size} node${outs.size===1?'':'s'}</dd>${U&&n.traffic?`<dt>Traffic</dt><dd>${esc(fmtNum(n.traffic.hits))} hits · ${esc(fmtBytes(n.traffic.bytes))} <span class="more">(all its policies, ${esc(U.win.label)})</span></dd>`:''}</dl>
+      <p style="display:flex;gap:14px;flex-wrap:wrap">${lv('medium')?'':'<span class="more">Switch to Medium to focus the web on one node.</span>'}<a class="linkish" data-lvl="medium" data-wfocus="${esc(n.label)}">Focus the web on this</a>${W3.level!=='zones'&&n.look?`<a class="linkish" data-look="${esc(n.look)}">Open in Object lookup</a>`:''}</p>
+      ${outs.size?`<h4>Out to (${outs.size})</h4><ul class="list">${nbList(outs,'→')}</ul>`:''}
+      ${ins.size?`<h4>In from (${ins.size})</h4><ul class="list">${nbList(ins,'←')}</ul>`:''}
+      <h4>Policies (${rs.length})</h4>${ruleListHTML(rs)}`;
+  });
+}
+function initWebEvents(){
+  const c=$('#w-canvas');
+  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);W3.drag={x:e.clientX,y:e.clientY,ry:W3.rotY,rx:W3.rotX,moved:false};c.style.cursor='grabbing'});
+  c.addEventListener('pointermove',e=>{
+    const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    if(W3.drag){const dx=e.clientX-W3.drag.x,dy=e.clientY-W3.drag.y;if(Math.abs(dx)+Math.abs(dy)>3)W3.drag.moved=true;
+      W3.rotY=W3.drag.ry+dx*0.008;W3.rotX=Math.max(-1.45,Math.min(1.45,W3.drag.rx+dy*0.008));webTip(null);return}
+    const n=webHit(x,y);W3.hover=n;c.style.cursor=n?'pointer':'grab';webTip(n,x,y);
+  });
+  c.addEventListener('pointerup',e=>{
+    const d=W3.drag;W3.drag=null;c.style.cursor='grab';
+    if(d&&!d.moved){const r=c.getBoundingClientRect();const n=webHit(e.clientX-r.left,e.clientY-r.top);W3.sel=n;if(n)openWebNode(n)}
+  });
+  c.addEventListener('pointerleave',()=>{W3.hover=null;webTip(null)});
+  c.addEventListener('wheel',e=>{e.preventDefault();W3.zoom=Math.max(0.3,Math.min(6,W3.zoom*Math.exp(-e.deltaY*0.0012)))},{passive:false});
+  c.addEventListener('keydown',e=>{const k=e.key;
+    if(k==='ArrowLeft')W3.rotY-=0.12;else if(k==='ArrowRight')W3.rotY+=0.12;else if(k==='ArrowUp')W3.rotX=Math.max(-1.45,W3.rotX-0.12);else if(k==='ArrowDown')W3.rotX=Math.min(1.45,W3.rotX+0.12);
+    else if(k==='+'||k==='=')W3.zoom=Math.min(6,W3.zoom*1.15);else if(k==='-')W3.zoom=Math.max(0.3,W3.zoom/1.15);else return;e.preventDefault()});
+  ['w-level','w-dis','w-broad','w-hops'].forEach(id=>$('#'+id).onchange=()=>{W3.sel=null;buildWeb()});
+  $('#w-go').onclick=()=>{W3.sel=null;buildWeb()};
+  $('#w-focus').addEventListener('keydown',e=>{if(e.key==='Enter'){W3.sel=null;buildWeb()}});
+  $('#w-clear').onclick=()=>{$('#w-focus').value='';W3.sel=null;buildWeb()};
+  $('#w-reset').onclick=()=>{W3.rotY=0.6;W3.rotX=-0.3;W3.zoom=1;W3.sel=null};
+  $('#w-weigh').onchange=applyWebWeights;
+  if(reduceMotion)$('#w-rot').checked=false;
+}
+
+/* ---------- clean-up ---------- */
+function renderCleanup(){
+  const R=D.rules,M=lv('medium'),A=lv('advanced');
+  const sec=(title,badge,why,body,wide)=>`<div class="card sec"${wide?' style="grid-column:1/-1"':''}><h3>${esc(title)} <span class="badge ${badge}">${body.n}</span></h3><p>${esc(why)}</p>${body.html}</div>`;
+  const rl=(list,extra,max)=>({n:list.length,html:list.length?ruleListHTML(max?list.slice(0,max):list,extra)+(max&&list.length>max?`<p class="more">${list.length-max} more.</p>`:''):'<p class="more">None.</p>'});
+  const dis=R.filter(r=>!r.enabled),temp=R.filter(isTemp);
+  const anyPort=R.filter(r=>r.enabled&&r.anyPort&&r.action!=='Block');
+  const broad=R.filter(r=>r.enabled&&r.action!=='Block'&&(r.fromLeaves.some(l=>l.k==='any')||r.toLeaves.some(l=>l.k==='any')));
+  const groups={};for(const r of R){const k=[r.action,r.fromLeaves.map(l=>l.t).sort().join(','),r.toLeaves.map(l=>l.t).sort().join(','),r.ports.slice().sort().join(',')].join('|');(groups[k]=groups[k]||[]).push(r)}
+  const dups=Object.values(groups).filter(g=>g.length>1);
+  const un=D.unused;
+  const aliasList=(names,max)=>names.length?'<ul class="list">'+names.slice(0,max||names.length).map(n=>{const lv2=D.aliasLeaves(n);return `<li><a data-look="${esc(n)}">${esc(n)}</a><span class="more mono">${esc(lv2.slice(0,3).map(l=>l.t).join(', '))}${lv2.length>3?' …':''}</span>${D.AL[n].desc?'<span class="more">'+esc(D.AL[n].desc)+'</span>':''}</li>`}).join('')+'</ul>'+(max&&names.length>max?`<p class="more">${names.length-max} more.</p>`:''):'<p class="more">None.</p>';
+  const accepted=R.filter(r=>r.risk&&r.risk.score>0&&isAccepted(r));
+  const ranked=R.filter(r=>r.risk&&r.risk.score>0&&!isAccepted(r)).sort((a,b)=>b.risk.score-a.risk.score||((b.u?b.u.hits:0)-(a.u?a.u.hits:0))||a.i-b.i);
+  const nTop=A?25:M?10:5;
+  const fix=`<div class="card sec" style="grid-column:1/-1"><h3>Fix these first <span class="badge b-red">${ranked.filter(r=>r.risk.level==='high').length} high</span> <span class="badge b-amber">${ranked.filter(r=>r.risk.level==='medium').length} medium</span></h3>
+    <p>Enabled policies ranked by risk: how broad they are, whether the internet can reach them, logging, IPS, temporary names${U?' and whether they carried traffic':''}.${U?' Busy policies come first among equals, because more depends on them.':''}</p>
+    <ol class="fix">${ranked.slice(0,nTop).map(r=>`<li>${riskBadge(r,A)} <a data-rule="${r.i}">${esc(r.name)}</a> ${usageInline(r)} ${decBadge(r)}<div class="more">${esc(r.risk.reasons.join(' · '))}</div></li>`).join('')}</ol>${accepted.length?`<p class="more">${accepted.length} accepted polic${accepted.length===1?'y is':'ies are'} left out until their re-review date${M?' (see Accepted and re-reviews below)':''}: ${esc(accepted.slice(0,4).map(r=>r.name).join(', '))}${accepted.length>4?' …':''}.</p>`:''}${ranked.length>nTop?`<p class="more">${ranked.length-nTop} more ${M?'in the Rules tab (sort by risk)':'in Medium view'}.</p>`:''}</div>`;
+  const parts=[fix];
+  if(!M){
+    const dueN=R.filter(r=>revState(r)==='due').length;
+    const g=[[ranked.filter(r=>r.risk.level==='high').length,'High-risk policies','b-red'],accepted.length?[accepted.length,'Accepted risks','b-green']:null,dueN?[dueN,'Re-reviews due','b-red']:null,[EXPO.length,'Reachable from the internet','b-red'],U?[U.idle,'Enabled, no traffic','b-amber']:null,[temp.length,'Temporary or test','b-amber'],[dis.length,'Disabled','b-grey'],[un.length,'Aliases not used','b-grey']].filter(Boolean);
+    parts.push(`<div class="card sec" style="grid-column:1/-1"><h3>At a glance</h3><div class="tiles" style="margin:6px 0 0">${g.map(([n,l])=>`<div class="tile"><b>${n}</b><span>${esc(l)}</span></div>`).join('')}</div><p class="more" style="margin-top:8px">Switch to <a class="linkish" data-setlevel="medium">Medium</a> for the full lists and the review list, or <a class="linkish" data-setlevel="advanced">Advanced</a> for every check.</p></div>`);
+  }
+  parts.push(U?usageCleanupHTML('summary'):usageHelpHTML());
+  if(M){
+    parts.push(acceptedCardHTML(),reviewCardHTML());
+    if(U)parts.push(usageCleanupHTML('medium'));
+    parts.push(sec('Disabled policies','b-grey','Switched off but still in the configuration. Delete them if they are no longer needed.',rl(dis)),
+      sec('Temporary or test policies','b-amber','The name or a tag suggests temporary, test or review use.',rl(temp)),
+      sec('Any-port policies','b-amber','Enabled policies whose service allows every port of a protocol.',rl(anyPort,r=>`<span class="more">${esc(r.from.map(c=>c.label).slice(0,2).join(', '))} → ${esc(r.to.map(c=>c.label).slice(0,2).join(', '))}</span>`)),
+      sec('Policies with "Any" as source or destination','b-amber','Enabled policies that use the Any alias on one side. These are the broadest rules.',rl(broad)),
+      sec('Possible duplicates','b-violet','Policies with the same action, the same resolved addresses on both sides and the same ports.',{n:dups.length,html:dups.length?dups.map(g=>ruleListHTML(g)).join('<hr class="sep">'):'<p class="more">None.</p>'}),
+      sec('Named aliases not used by any policy','b-grey','Defined but not referenced by any policy, directly or inside another alias. Click one to confirm in Object lookup.',{n:un.length,html:aliasList(un,A?0:12)}));
+    const hyRows=[['Logging switched off',HY.logOff],['No real description',HY.noDesc],['Addresses typed straight into the policy',HY.inline],['Names to tidy (***, double spaces, delete/old/copy, trailing .1)',HY.naming],['Not always on (has a schedule)',HY.sched]];
+    if(!A)parts.push(`<div class="card sec"><h3>Tidy-up checks</h3><p>Housekeeping that makes the rule base easier to read and audit. Advanced view lists every one.</p><ul class="list">${hyRows.map(([t,l])=>`<li><b>${l.length}</b> ${esc(t)}<span class="more">${esc(l.slice(0,3).map(r=>r.name).join(', '))}${l.length>3?' …':''}</span></li>`).join('')}<li><b>${HY.dupAlias.length}</b> groups of aliases holding exactly the same addresses<span class="more">${esc(HY.dupAlias.slice(0,2).map(g=>g.join(' = ')).join('; '))}</span></li></ul></div>`);
+  }
+  if(A){
+    const sh=R.filter(r=>r.shadow);
+    parts.push(sec('Never reached','b-violet','The Firebox checks policies top to bottom (manual order). These are fully covered by a policy above them, so they never match. Same action: redundant, safe to remove after checking. Different action: the policy doesn’t do what its name says.',rl(sh,r=>`<span class="badge ${r.shadow.same?'b-grey':'b-red'}">${r.shadow.same?'redundant':'action never applies'}</span><span class="more">covered by <a class="linkish" data-rule="${r.shadow.by.i}">${esc(r.shadow.by.name)}</a> (#${r.shadow.by.i})</span>`)));
+    parts.push(sec('Logging switched off','b-amber','Without logging there is no record of what these policies let through.',rl(HY.logOff)),
+      sec('No real description','b-grey','Empty, or only the automatic “Policy added on …” text. Record the purpose and owner.',rl(HY.noDesc)),
+      sec('Addresses typed straight into the policy','b-grey','IPs or ranges entered directly instead of a named alias. Harder to reuse and to read.',rl(HY.inline,r=>`<span class="more mono">${esc([...r.from,...r.to].filter(c=>c.kind==='ip').slice(0,3).map(c=>c.label).join(', '))}</span>`)),
+      sec('Names to tidy','b-grey','Decorations like ***, double spaces, “delete”, “old”, “copy” or a trailing .1.',rl(HY.naming)),
+      sec('IPS off on internet-facing policies','b-red','Inbound policies without intrusion prevention.',rl(HY.ipsOffInbound)),
+      `<div class="card sec"><h3>Aliases holding the same addresses <span class="badge b-grey">${HY.dupAlias.length}</span></h3><p>Different names for exactly the same set of addresses. Keep one and repoint the rest.</p>${HY.dupAlias.length?'<ul class="list">'+HY.dupAlias.map(g=>`<li>${g.map(a=>`<a data-look="${esc(a)}">${esc(a)}</a>`).join(' = ')}<span class="more mono">${esc(D.aliasLeaves(g[0]).slice(0,2).map(l=>l.t).join(', '))}</span></li>`).join('')+'</ul>':'<p class="more">None.</p>'}</div>`);
+    if(U)parts.push(usageCleanupHTML('advanced'));
+    parts.push(denyCardHTML());
+    if(CH)parts.push(`<div class="card sec"><h3>Changes since ${esc(fmtWhen(CH.oldSaved))}</h3><p>${CH.items.filter(i=>i.type!=='minor').length} changes compared with ${esc(CMP.xmlName)}.</p><button class="btn" data-gotab="changes">Open the Changes tab</button></div>`);
+  }
+  $('#cout').innerHTML=parts.join('');
+}
+
+/* ---------- tabs, loading, events ---------- */
+function switchTab(t){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!=='v-'+t));
+  store.set('fwmap.tab',t);
+  if(t==='rules')renderRules();
+  if(t==='changes')renderChanges();
+  if(t==='web'){if(!W3.built)buildWeb();startWeb()}else stopWeb();
+}
+function loaded(model){
+  D=model;W3.built=false;
+  const src=U?{text:U.raw,name:U.file}:pendingCSV;U=null;pendingCSV=null;
+  if(src){try{loadUsageText(src.text,src.name)}catch(e){U=null;banner(`The usage file ${esc(src.name)} doesn't fit this export: ${esc(e.message)}`,'err')}}
+  document.body.classList.toggle('has-usage',!!U);
+  analyse();
+  renderMeta();
+  $('#drop').classList.add('hidden');$('#tabs').classList.remove('hidden');
+  const tags=[...new Set(D.rules.flatMap(r=>r.tags))].sort();
+  $('#rtag').innerHTML='<option value="">All tags</option>'+tags.map(t=>`<option>${esc(t)}</option>`).join('');
+  if(D.raw.metaInfo.autoOrder)banner('This export uses automatic policy order. The Firebox sorts policies by how specific they are, so the order shown here and the reachability tester may not match exactly.','note');
+  $('#rchg').classList.toggle('hidden',!CMP.xml);
+  renderTiles();renderExposure();renderMatrix();renderRules();fillLookupList();renderCleanup();renderPathResult();renderChanges();
+  try{const v=JSON.parse(store.get('fwmap.sel')||'[]');sel=Array.isArray(v)?v.filter(x=>typeof x==='string').slice(0,maxSel()):[]}catch(e){sel=[]}
+  lookup();
+  const t=store.get('fwmap.tab');switchTab(['matrix','rules','lookup','web','cleanup','changes'].includes(t)?t:'matrix');
+}
+function loadFile(f){
+  if(!f)return;
+  const isCSV=/\.csv$/i.test(f.name)||/csv/i.test(f.type||'');
+  const rd=new FileReader();
+  rd.onload=()=>{
+    if(isCSV){
+      if(!D){pendingCSV={text:rd.result,name:f.name};$('#loaderr').innerHTML=`<div class="note">Usage file ${esc(f.name)} is ready. Now load the export XML it belongs to.</div>`;return}
+      try{applyUsage(rd.result,f.name)}catch(e){console.error(e);banner(`Could not read ${esc(f.name)}: ${esc(e.message)} Export it again from WatchGuard Cloud (Reports › Policy Usage › CSV).`,'err')}
+      return;
+    }
+    try{const m=parseExport(rd.result,f.name);XMLTEXT=rd.result;loaded(m)}catch(e){console.error(e);$('#drop').classList.remove('hidden');$('#loaderr').innerHTML=`<div class="err">Could not read ${esc(f.name)}: ${esc(e.message)} Export the configuration from Policy Manager (File › Save › As File) and try again.</div>`}
+  };
+  rd.onerror=()=>{banner(`Could not open ${esc(f.name)}: the browser refused to read it. Try copying the file to a local folder first.`,'err')};
+  rd.readAsText(f);
+}
+$('#file').onchange=e=>loadFile(e.target.files[0]);
+$('#ufile').onchange=e=>{loadFile(e.target.files[0]);e.target.value=''};
+['dragover','dragenter'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.add('over')}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.remove('over')}));
+document.addEventListener('drop',e=>{const fs=e.dataTransfer?[...e.dataTransfer.files]:[];fs.sort((a,b)=>(/\.csv$/i.test(a.name)?1:0)-(/\.csv$/i.test(b.name)?1:0)).forEach(loadFile)});
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+['mx-dis','mx-any','mx-empty','mx-metric'].forEach(id=>$('#'+id).onchange=renderMatrix);
+['rq','rtag','ract','rdis','ruse','rsort'].forEach(id=>$('#'+id).addEventListener('input',renderRules));
+$('#lgo').onclick=()=>addToSelection($('#lq').value);$('#lq').addEventListener('keydown',e=>{if(e.key==='Enter')addToSelection($('#lq').value)});$('#lbroad').onchange=lookup;
+$('#lclear').onclick=()=>{sel=[];focusIdx=0;saveSel();lookup()};
+$('#dclose').onclick=closeDrawer;$('#dback').onclick=()=>{drawerStack.pop();paintDrawer()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+document.querySelectorAll('#lvl button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.l===LEVEL));b.onclick=()=>setLevel(b.dataset.l)});
+['rview','rdec','rchg'].forEach(id=>$('#'+id).addEventListener('input',renderRules));
+function afterReview(repaint){renderTiles();renderRules();if(!$('#v-cleanup').classList.contains('hidden'))renderCleanup();if(repaint&&drawerStack.length){const sc=$('#dbody').scrollTop;paintDrawer();$('#dbody').scrollTop=sc}}
+function runPT(){const a=[$('#pt-src').value,$('#pt-dst').value,$('#pt-port').value];store.set('fwmap.pt',JSON.stringify(a));PT=D?pathTest(a[0],a[1],a[2],lv('advanced')?$('#pt-proto').value:'tcp'):null;renderPathResult()}
+$('#pt-go').onclick=runPT;['pt-src','pt-dst','pt-port'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{if(e.key==='Enter')runPT()}));
+$('#pt-swap').onclick=()=>{const a=$('#pt-src').value;$('#pt-src').value=$('#pt-dst').value;$('#pt-dst').value=a;if(PT)runPT()};
+if(store.get('fwmap.ptOpen')==='0')$('#pt-box').open=false;
+$('#pt-box').addEventListener('toggle',()=>store.set('fwmap.ptOpen',$('#pt-box').open?'1':'0'));
+try{const v=JSON.parse(store.get('fwmap.pt')||'null');if(Array.isArray(v)){$('#pt-src').value=v[0]||'';$('#pt-dst').value=v[1]||'';$('#pt-port').value=v[2]||''}}catch(e){}
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.classList&&(t.classList.contains('rev-rd')||t.classList.contains('rev-rr'))){const box=t.closest('.rev');setRev(box.dataset.revname,t.classList.contains('rev-rd')?{rd:t.value}:{rr:t.value});afterReview();return}
+  if(t.classList&&(t.classList.contains('rev-owner')||t.classList.contains('rev-note'))){const box=t.closest('.rev');setRev(box.dataset.revname,t.classList.contains('rev-owner')?{owner:t.value.trim()}:{note:t.value.trim()});renderRules();if(!$('#v-cleanup').classList.contains('hidden'))renderCleanup();return}
+  if(t.id==='cmp-xml2'){const f=t.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{readOldXml(rd.result,f.name);analyse();refreshAll()}catch(err){const m=$('#cmp-msg2');if(m)m.innerHTML=`<div class="err">Could not read ${esc(f.name)}: ${esc(err.message)}</div>`}};rd.readAsText(f);return}
+  if(t.id==='rev-import'||t.id==='dfile'){const f=t.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{
+    try{if(t.id==='rev-import'){const n=importReview(rd.result);banner(`Imported ${n} review entr${n===1?'y':'ies'} from ${esc(f.name)}.`,'note');renderRules()}else{loadDenyLog(rd.result,f.name)}renderCleanup()}
+    catch(err){if(t.id==='dfile'){renderCleanup();const m=$('#dmsg');if(m)m.innerHTML=`<div class="err">Could not read ${esc(f.name)}: ${esc(err.message)}</div>`}else banner(`Could not import ${esc(f.name)}: ${esc(err.message)}`,'err')}};rd.readAsText(f)}
+});
+document.addEventListener('click',e=>{
+  const og=e.target.closest('[data-oldrule]');if(og){openOldRule(og.dataset.oldrule);return}
+  const gt=e.target.closest('[data-gotab]');if(gt){switchTab(gt.dataset.gotab);return}
+  const sl=e.target.closest('[data-setlevel]');if(sl){setLevel(sl.dataset.setlevel);return}
+  const dc=e.target.closest('[data-dec]');if(dc){const box=dc.closest('.rev');setRev(box.dataset.revname,{d:dc.dataset.dec});afterReview(true);return}
+  const rq=e.target.closest('[data-rrq]');if(rq){const box=rq.closest('.rev'),v=REV[box.dataset.revname]||{};setRev(box.dataset.revname,{rr:addMonthsISO(todayISO(),+rq.dataset.rrq),rd:v.rd||todayISO()});afterReview(true);return}
+  if(e.target.id==='rev-export'){exportReview(false);return}
+  if(e.target.id==='rev-export-all'){exportReview(true);return}
+  if(e.target.id==='cmp-open'||e.target.id==='cmp-open2'){if(D)compareDrawer();return}
+  const look=e.target.closest('[data-look]');if(look){sel=[look.dataset.look];focusIdx=0;saveSel();closeDrawer();switchTab('lookup');lookup();return}
+  const rm=e.target.closest('[data-remove]');if(rm){sel.splice(+rm.dataset.remove,1);saveSel();lookup();return}
+  const sw=e.target.closest('[data-swap]');if(sw){sel[+sw.dataset.swap]=sw.dataset.val;sel=sel.filter((v,i)=>sel.findIndex(x=>x.toLowerCase()===v.toLowerCase())===i);saveSel();lookup();return}
+  if(e.target.id==='wgcsave'){const v=$('#wgcin').value.trim();if(/^https:\/\/[a-z0-9.-]*cloud\.watchguard\.com\//i.test(v)){store.set('fwmap.wgcUrl',v);setWgcLinks();$('#wgcmsg').textContent='Saved. The links on this page now open that Firebox.'}else{$('#wgcmsg').textContent='That doesn’t look like a WatchGuard Cloud address (it should start https://…cloud.watchguard.com/).'}return}
+  if(e.target.id==='wgcreset'){store.set('fwmap.wgcUrl','');$('#wgcin').value=WGC_DEFAULT;setWgcLinks();$('#wgcmsg').textContent='Link cleared. The button opens WatchGuard Cloud.';return}
+  const wf=e.target.closest('[data-wfocus]');if(wf){$('#w-focus').value=wf.dataset.wfocus;closeDrawer();switchTab('web');buildWeb();return}
+  const fc=e.target.closest('[data-focus]');if(fc){focusIdx=+fc.dataset.focus;lookup();return}
+  const rr=e.target.closest('[data-rule]');if(rr){const inDrawer=!!e.target.closest('#drawer');openRule(+rr.dataset.rule,inDrawer);}
+});
+initWebEvents();
+setWgcLinks();
+(function(){const t=store.get('fwmap.theme');if(t)document.documentElement.dataset.theme=t;
+  $('#theme').onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const n=cur==='dark'?'light':'dark';document.documentElement.dataset.theme=n;store.set('fwmap.theme',n)}})();
+</script>
+</body>
+</html>
